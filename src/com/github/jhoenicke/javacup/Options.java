@@ -182,7 +182,7 @@ public class Options {
 		if (option.equals("nowarn")) {
 			nowarn = true;
 			return true;
-		} 
+		}
 		if (option.equals("dump_states")) {
 			opt_dump_states = true;
 			return true;

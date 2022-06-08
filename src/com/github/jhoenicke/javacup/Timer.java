@@ -32,19 +32,21 @@ public class Timer {
 	}
 
 	private Stack<Long> starts;
-	
+
 	private Map<TIMESTAMP, Long> times = null;
 
 	private Stack<Long> getStarts() {
-		if (starts == null) starts = new Stack<>();
+		if (starts == null)
+			starts = new Stack<>();
 		return starts;
 	}
 
 	private Map<TIMESTAMP, Long> getTimes() {
-		if (times == null) times = new TreeMap<>();
+		if (times == null)
+			times = new TreeMap<>();
 		return times;
 	}
-	
+
 	public void clearAllTimers() {
 		starts = null;
 		times = null;
@@ -56,11 +58,11 @@ public class Timer {
 
 	public void popTimer(TIMESTAMP timeStamp) {
 		if (getStarts().isEmpty()) {
-			ErrorManager.getManager().emit_fatal("Timer stack empty for : "+timeStamp.name());
+			ErrorManager.getManager().emit_fatal("Timer stack empty for : " + timeStamp.name());
 		}
 		long started = getStarts().pop();
 		long current = System.currentTimeMillis();
-		getTimes().put(timeStamp, current-started );
+		getTimes().put(timeStamp, current - started);
 	}
 
 	public void insertTime(TIMESTAMP timeStamp) {
@@ -70,7 +72,7 @@ public class Timer {
 	public boolean hasTime(TIMESTAMP timeStamp) {
 		return getTimes().containsKey(timeStamp);
 	}
-	
+
 	public long getTime(TIMESTAMP timeStamp) {
 		return getTimes().get(timeStamp);
 	}

@@ -92,7 +92,7 @@ public class Main {
 	/*--- Constructor(s) ----------------------------------------*/
 	/*-----------------------------------------------------------*/
 
-	public Main() {
+	public Main(){
 		ErrorManager.clear();
 		timer = new Timer();
 		timer.pushTimer(); // global time
@@ -110,7 +110,8 @@ public class Main {
 		if (options.print_progress)
 			ErrorManager.getManager().emit_info("Parsing specification...");
 		Grammar grammar = parse_grammar_spec();
-		if (grammar == null) return 1;
+		if (grammar == null)
+			return 1;
 		grammar.add_wildcard_rules();
 		timer.popTimer(Timer.TIMESTAMP.parse_time);
 
@@ -132,11 +133,12 @@ public class Main {
 			build_parser(grammar);
 			timer.popTimer(Timer.TIMESTAMP.build_time);
 
-			if (options.opt_erase_generated) 
+			if (options.opt_erase_generated)
 				emit_erase(grammar);
-				
+
 			/* output the generated code, if # of conflicts permits */
-			if (ErrorManager.getManager().getErrorCount() == 0 && ErrorManager.getManager().getWarningCount() != options.expect_conflicts) {
+			if (ErrorManager.getManager().getErrorCount() == 0
+					&& ErrorManager.getManager().getWarningCount() != options.expect_conflicts) {
 				// conflicts! don't emit code, don't dump tables.
 				options.opt_dump_tables = false;
 			} else { // everything's okay, emit parser.
@@ -161,7 +163,7 @@ public class Main {
 		/* produce a summary if desired */
 		if (!options.no_summary)
 			emit_summary(grammar, did_output);
-		
+
 		return ErrorManager.getManager().getErrorCount() == 0 ? 0 : 1;
 
 	}
@@ -403,7 +405,7 @@ public class Main {
 		String packageAsFileSystem = options.package_name.replace(".", "/");
 		File folder = new File(new File(options.dest_dir == null ? "." : options.dest_dir), packageAsFileSystem);
 		folder.mkdirs();
-		File file = new File(folder, filename+"."+extension);
+		File file = new File(folder, filename + "." + extension);
 		return file;
 	}
 
@@ -425,7 +427,7 @@ public class Main {
 		}
 		return writer;
 	}
-	
+
 	private void safeClose(PrintWriter writer, File file) {
 		try {
 			if (writer != null)
@@ -434,19 +436,19 @@ public class Main {
 			ErrorManager.getManager().emit_fatal("Can't close \"" + file.getAbsolutePath() + "\"");
 		}
 	}
-	
+
 	private void emit_erase(Grammar grammar) {
-		safeDelete (buildFile(options.symbol_const_class_name, "java"));
-		safeDelete (buildFile(options.parser_class_name, "java"));
-		safeDelete (buildFile(options.parser_class_name, "dump"));
+		safeDelete(buildFile(options.symbol_const_class_name, "java"));
+		safeDelete(buildFile(options.parser_class_name, "java"));
+		safeDelete(buildFile(options.parser_class_name, "dump"));
 	}
-	
+
 	private void emit_symbols(Grammar grammar) {
 		File file = buildFile(options.symbol_const_class_name, "java");
-		PrintWriter symbol_class_file = safeOpen (file);
+		PrintWriter symbol_class_file = safeOpen(file);
 		if (symbol_class_file != null) {
-			ErrorManager.getManager().emit_info("Generate Symbol file : "+file.getPath());
-			Emit emit = new Emit (options, timer);
+			ErrorManager.getManager().emit_info("Generate Symbol file : " + file.getPath());
+			Emit emit = new Emit(options, timer);
 			emit.symbols(symbol_class_file, grammar);
 		}
 		safeClose(symbol_class_file, file);
@@ -454,10 +456,10 @@ public class Main {
 
 	private void emit_parser(Grammar grammar) {
 		File file = buildFile(options.parser_class_name, "java");
-		PrintWriter parser_class_file = safeOpen (file);
+		PrintWriter parser_class_file = safeOpen(file);
 		if (parser_class_file != null) {
-			ErrorManager.getManager().emit_info("Generate Parser file : "+file.getPath());
-			Emit emit = new Emit (options, timer);
+			ErrorManager.getManager().emit_info("Generate Parser file : " + file.getPath());
+			Emit emit = new Emit(options, timer);
 			emit.parser(parser_class_file, grammar);
 		}
 		safeClose(parser_class_file, file);
@@ -465,15 +467,14 @@ public class Main {
 
 	private void emit_dumps(Grammar grammar) {
 		File file = buildFile(options.parser_class_name, "dump");
-		PrintWriter dump_file = safeOpen (file);
+		PrintWriter dump_file = safeOpen(file);
 		if (dump_file != null) {
-			ErrorManager.getManager().emit_info("Generate Dump file : "+file.getPath());
-			Emit emit = new Emit (options, timer);
+			ErrorManager.getManager().emit_info("Generate Dump file : " + file.getPath());
+			Emit emit = new Emit(options, timer);
 			emit.dumps(dump_file, grammar);
 		}
 		safeClose(dump_file, file);
 	}
-
 
 	/**
 	 * Helper routine to optionally return a plural or non-plural ending.
@@ -550,36 +551,46 @@ public class Main {
 		System.err.println("----------------------------------------------------");
 		System.err.println("  Timing Summary");
 		System.err.println(timestr("    Total time       ", timer.getTime(Timer.TIMESTAMP.final_time), total_time));
-		System.err.println(timestr("      Startup        ", timer.getTime(Timer.TIMESTAMP.preliminary_time), total_time));
+		System.err
+				.println(timestr("      Startup        ", timer.getTime(Timer.TIMESTAMP.preliminary_time), total_time));
 		System.err.println(timestr("      Parse          ", timer.getTime(Timer.TIMESTAMP.parse_time), total_time));
 		if (timer.hasTime(Timer.TIMESTAMP.check_time))
 			System.err.println(timestr("      Checking       ", timer.getTime(Timer.TIMESTAMP.check_time), total_time));
 		if (timer.hasTime(Timer.TIMESTAMP.build_time))
 			System.err.println(timestr("      Parser Build   ", timer.getTime(Timer.TIMESTAMP.build_time), total_time));
 		if (timer.hasTime(Timer.TIMESTAMP.nullability_time))
-			System.err.println(timestr("        Nullability  ", timer.getTime(Timer.TIMESTAMP.nullability_time), total_time));
+			System.err.println(
+					timestr("        Nullability  ", timer.getTime(Timer.TIMESTAMP.nullability_time), total_time));
 		if (timer.hasTime(Timer.TIMESTAMP.first_time))
 			System.err.println(timestr("        First sets   ", timer.getTime(Timer.TIMESTAMP.first_time), total_time));
 		if (timer.hasTime(Timer.TIMESTAMP.machine_time))
-			System.err.println(timestr("        State build  ", timer.getTime(Timer.TIMESTAMP.machine_time), total_time));
+			System.err
+					.println(timestr("        State build  ", timer.getTime(Timer.TIMESTAMP.machine_time), total_time));
 		if (timer.hasTime(Timer.TIMESTAMP.table_time))
 			System.err.println(timestr("        Table build  ", timer.getTime(Timer.TIMESTAMP.table_time), total_time));
 		if (timer.hasTime(Timer.TIMESTAMP.reduce_check_time))
-			System.err.println(timestr("        Checking     ", timer.getTime(Timer.TIMESTAMP.reduce_check_time), total_time));
+			System.err.println(
+					timestr("        Checking     ", timer.getTime(Timer.TIMESTAMP.reduce_check_time), total_time));
 		if (timer.hasTime(Timer.TIMESTAMP.emit_time))
 			System.err.println(timestr("      Code Output    ", timer.getTime(Timer.TIMESTAMP.emit_time), total_time));
 		if (timer.hasTime(Timer.TIMESTAMP.symbols_time))
-			System.err.println(timestr("        Symbols      ", timer.getTime(Timer.TIMESTAMP.symbols_time), total_time));
+			System.err
+					.println(timestr("        Symbols      ", timer.getTime(Timer.TIMESTAMP.symbols_time), total_time));
 		if (timer.hasTime(Timer.TIMESTAMP.parser_time))
-			System.err.println(timestr("        Parser class ", timer.getTime(Timer.TIMESTAMP.parser_time), total_time));
+			System.err
+					.println(timestr("        Parser class ", timer.getTime(Timer.TIMESTAMP.parser_time), total_time));
 		if (timer.hasTime(Timer.TIMESTAMP.action_code_time))
-			System.err.println(timestr("          Actions    ", timer.getTime(Timer.TIMESTAMP.action_code_time), total_time));
+			System.err.println(
+					timestr("          Actions    ", timer.getTime(Timer.TIMESTAMP.action_code_time), total_time));
 		if (timer.hasTime(Timer.TIMESTAMP.production_table_time))
-			System.err.println(timestr("          Prod table ", timer.getTime(Timer.TIMESTAMP.production_table_time), total_time));
+			System.err.println(
+					timestr("          Prod table ", timer.getTime(Timer.TIMESTAMP.production_table_time), total_time));
 		if (timer.hasTime(Timer.TIMESTAMP.action_code_time))
-			System.err.println(timestr("          Action tab ", timer.getTime(Timer.TIMESTAMP.action_code_time), total_time));
+			System.err.println(
+					timestr("          Action tab ", timer.getTime(Timer.TIMESTAMP.action_code_time), total_time));
 		if (timer.hasTime(Timer.TIMESTAMP.goto_table_time))
-			System.err.println(timestr("          Reduce tab ", timer.getTime(Timer.TIMESTAMP.goto_table_time), total_time));
+			System.err.println(
+					timestr("          Reduce tab ", timer.getTime(Timer.TIMESTAMP.goto_table_time), total_time));
 
 		System.err.println(timestr("      Dump Output    ", timer.getTime(Timer.TIMESTAMP.dump_time), total_time));
 	}
@@ -639,11 +650,12 @@ public class Main {
 		int code;
 		code = main.parse_args(argv);
 		if (code == 0) {
-			/* run parser, analyser and generater*/
+			/* run parser, analyser and generater */
 			code = main.run();
 		}
-		if (code == 0) return;
-		if (! main.options.opt_no_exit) {
+		if (code == 0)
+			return;
+		if (!main.options.opt_no_exit) {
 			System.exit(code);
 		}
 	}

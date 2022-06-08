@@ -22,12 +22,13 @@ public class ErrorManager {
 	private int fatals = 0;
 
 	private Set<String> filter;
-	
+
 	private ErrorManager() {
 	}
 
 	public static ErrorManager getManager() {
-		if (errorManager == null) errorManager = new ErrorManager();
+		if (errorManager == null)
+			errorManager = new ErrorManager();
 		return errorManager;
 	}
 
@@ -36,7 +37,8 @@ public class ErrorManager {
 	}
 
 	private Set<String> getFilter() {
-		if (filter == null) filter = new TreeSet<>();
+		if (filter == null)
+			filter = new TreeSet<>();
 		return filter;
 	}
 
@@ -53,14 +55,14 @@ public class ErrorManager {
 	}
 
 	/**
-	 * Error message format:
-	 *		ERRORLEVEL : MESSAGE @ Symbol: name#token=="value"(line/column)
-	 *		ERRORLEVEL : MESSAGE
+	 * Error message format: ERRORLEVEL : MESSAGE @ Symbol:
+	 * name#token=="value"(line/column) ERRORLEVEL : MESSAGE
 	 **/
-	
+
 	private void emit(Severity severity, String message, Symbol sym) {
 		if (sym != null && sym.value != null) {
-			if (getFilter().contains(sym.value.toString())) return;
+			if (getFilter().contains(sym.value.toString()))
+				return;
 			getFilter().add(sym.value.toString());
 		}
 		StringBuilder tmp = new StringBuilder();
