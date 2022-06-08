@@ -12,7 +12,7 @@ import java.util.Collection;
  * @author  Scott Hudson
  */
 
-public class non_terminal extends symbol {
+public class NonTerminal extends GrammarSymbol {
 
   /*-----------------------------------------------------------*/
   /*--- Constructor(s) ----------------------------------------*/
@@ -22,7 +22,7 @@ public class non_terminal extends symbol {
    * @param nm  the name of the non terminal.
    * @param tp  the type string for the non terminal.
    */
-  public non_terminal(String nm, String tp, int index) 
+  public NonTerminal(String nm, String tp, int index) 
     {
       super(nm, tp, index);
     }
@@ -32,7 +32,7 @@ public class non_terminal extends symbol {
   /** Constructor with default type. 
    * @param nm  the name of the non terminal.
    */
-  public non_terminal(String nm, int index) 
+  public NonTerminal(String nm, int index) 
     {
       this(nm, null, index);
     }
@@ -46,10 +46,10 @@ public class non_terminal extends symbol {
   /*-----------------------------------------------------------*/
 
   /** Table of all productions with this non terminal on the LHS. */
-  protected ArrayList<production> _productions = new ArrayList<production>();
+  protected ArrayList<Production> _productions = new ArrayList<Production>();
 
   /** Access to productions with this non terminal on the LHS. */
-  public Collection<production> productions() {return _productions;}
+  public Collection<Production> productions() {return _productions;}
 
   /*. . . . . . . . . . . . . . . . . . . . . . . . . . . . . .*/
 
@@ -59,7 +59,7 @@ public class non_terminal extends symbol {
   /*. . . . . . . . . . . . . . . . . . . . . . . . . . . . . .*/
 
   /** Add a production to our set of productions. */
-  public void add_production(production prod)
+  public void add_production(Production prod)
     {
       /* catch improper productions */
       assert (prod != null && prod.lhs() == this) :
@@ -80,10 +80,10 @@ public class non_terminal extends symbol {
   /*. . . . . . . . . . . . . . . . . . . . . . . . . . . . . .*/
 
   /** First set for this non-terminal. */
-  protected terminal_set _first_set;
+  protected TerminalSet _first_set;
 
   /** First set for this non-terminal. */
-  public terminal_set first_set() {return _first_set;}
+  public TerminalSet first_set() {return _first_set;}
 
   /*-----------------------------------------------------------*/
   /*--- General Methods ---------------------------------------*/
@@ -107,7 +107,7 @@ public class non_terminal extends symbol {
 	return false;
       
       /* look and see if any of the productions now look nullable */
-      for (production prod : productions())
+      for (Production prod : productions())
 	{	
 	  /* if the production can go to empty, we are nullable */
 	  if (prod.check_nullable())

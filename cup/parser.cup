@@ -103,15 +103,15 @@ action code {:
   Grammar grammar = new Grammar();
 
   /** table of declared symbols -- contains production parts indexed by name */
-  private HashMap<String, symbol> symbols = new HashMap<String, symbol>();
+  private HashMap<String, GrammarSymbol> symbols = new HashMap<String, GrammarSymbol>();
 
   /** left hand side non terminal of the current production */
-  private non_terminal lhs_nt;
+  private NonTerminal lhs_nt;
 
   {
     /* declare "error" and "EOF" as a symbols */
-    symbols.put("error", terminal.error);
-    symbols.put("EOF", terminal.EOF);
+    symbols.put("error", Terminal.error);
+    symbols.put("EOF", Terminal.EOF);
   }  
 
   /** true, if declaring non-terminals. */
@@ -123,7 +123,7 @@ action code {:
   int _cur_prec = 0;
 
   /** Current precedence side */
-  int _cur_side = assoc.no_prec;
+  int _cur_side = Assoc.no_prec;
 
   /** update the precedences we are declaring */
   protected void update_precedence(int p)
@@ -132,32 +132,32 @@ action code {:
       _cur_prec++;
     }
   
-  private terminal get_term(Symbol location, String id)
+  private Terminal get_term(com.github.jhoenicke.javacup.runtime.Symbol location, String id)
     {
-      symbol sym = symbols.get(id);
+      GrammarSymbol sym = symbols.get(id);
 
       /* if it wasn't declared of the right type, emit a message */
-      if (!(sym instanceof terminal))
+      if (!(sym instanceof Terminal))
 	{
 	    ErrorManager.getManager().emit_warning("Terminal \"" + id + 
 	    "\" has not been declared", location);
 	  return null;
 	}
-      return (terminal)sym;
+      return (Terminal)sym;
     }
   
-  private non_terminal get_nonterm(Symbol location, String id)
+  private NonTerminal get_nonterm(com.github.jhoenicke.javacup.runtime.Symbol location, String id)
     {
-      symbol sym = symbols.get(id);
+      GrammarSymbol sym = symbols.get(id);
 
       /* if it wasn't declared of the right type, emit a message */
-      if (!(sym instanceof non_terminal))
+      if (!(sym instanceof NonTerminal))
 	{
 	    ErrorManager.getManager().emit_warning("Non-terminal \"" + id + 
 	    "\" has not been declared", location);
 	  return null;
 	}
-      return (non_terminal)sym;
+      return (NonTerminal)sym;
     }
 :};
 
@@ -172,15 +172,15 @@ parser code {:
     Object   info)
     {
       done_parsing();
-      if (info instanceof Symbol) ErrorManager.getManager().emit_fatal(message+ "\nCan't recover from previous error(s), giving up.",(Symbol)info);
+      if (info instanceof com.github.jhoenicke.javacup.runtime.Symbol) ErrorManager.getManager().emit_fatal(message+ "\nCan't recover from previous error(s), giving up.",(com.github.jhoenicke.javacup.runtime.Symbol)info);
       else ErrorManager.getManager().emit_fatal(message + "\nCan't recover from previous error(s), giving up.",cur_token);
       throw new RuntimeException("jcup fatal error parsing grammar");
     }
 
     public void report_error(String message, Object info)
     {
-      if (info instanceof Symbol)
-         ErrorManager.getManager().emit_error(message,(Symbol)info);
+      if (info instanceof com.github.jhoenicke.javacup.runtime.Symbol)
+         ErrorManager.getManager().emit_error(message,(com.github.jhoenicke.javacup.runtime.Symbol)info);
       else
          ErrorManager.getManager().emit_error(message,cur_token);
     }
@@ -214,10 +214,10 @@ non terminal Grammar spec;
 non terminal String  symbol_id, label_id, robust_id;
 non terminal StringBuilder multipart_id, import_id, type_id,
 			   typearglist, typeargument, wildcard;
-non terminal symbol wild_symbol_id;
+non terminal GrammarSymbol wild_symbol_id;
 
-non terminal production_part prod_part;
-non terminal symbol prod_precedence;
+non terminal ProductionPart prod_part;
+non terminal GrammarSymbol prod_precedence;
 
 /*----------------------------------------------------------------*/
 
@@ -394,7 +394,7 @@ new_symbol_id ::=
 	  else
 	    {
 	      /* build the symbol and put it in the symbol table */
-	      symbol sym;
+	      GrammarSymbol sym;
 	      if (_cur_is_nonterm) 
 	      	sym = grammar.add_non_terminal(sym_id, _cur_symbol_type);
 	      else
@@ -408,9 +408,9 @@ new_symbol_id ::=
 
 preced ::= PRECEDENCE assoc precterminal_list SEMI;
 
-assoc ::= LEFT     {: update_precedence(assoc.left); :}
-        | RIGHT    {: update_precedence(assoc.right); :}
-        | NONASSOC {: update_precedence(assoc.nonassoc); :}
+assoc ::= LEFT     {: update_precedence(Assoc.left); :}
+        | RIGHT    {: update_precedence(Assoc.right); :}
+        | NONASSOC {: update_precedence(Assoc.nonassoc); :}
         ;
       
 /*. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . */ 
@@ -429,7 +429,7 @@ precterminal_id ::= symbol_id:term
 
 start_spec ::= 
 	START WITH symbol_id:start_name SEMI 
-	{: non_terminal nt = get_nonterm(start_name$, start_name);
+	{: NonTerminal nt = get_nonterm(start_name$, start_name);
 	   if (nt != null) 
 	     grammar.set_start_symbol(nt); 
 	:}
@@ -469,10 +469,10 @@ rhs ::=
 	  if (lhs_nt != null) 
 	    {
 	      /* build the production */
-	      ArrayList<production_part> rhs_list = 
-	      	new ArrayList<production_part>(rhs.length);
+	      ArrayList<ProductionPart> rhs_list = 
+	      	new ArrayList<ProductionPart>(rhs.length);
 	      rhs_list.addAll(Arrays.asList(rhs));
-	      grammar.build_production(lhs_nt, rhs_list, (terminal) precsym);
+	      grammar.build_production(lhs_nt, rhs_list, (Terminal) precsym);
 	    }
 	:}
 	;
@@ -483,13 +483,13 @@ prod_part ::=
 	wild_symbol_id:symb label_id?:labid
 	{: 
 	  /* add a labeled production part */
-	  RESULT = new symbol_part(symb, labid);
+	  RESULT = new SymbolPart(symb, labid);
 	:}
 	|
 	CODE_STRING:code_str
 	{: 
 	  /* add a new production part */
-	  RESULT = new action_part(code_str);
+	  RESULT = new ActionPart(code_str);
 	:}
 	;
 
@@ -507,7 +507,7 @@ wild_symbol_id ::=
     |
     symbol_id : symid
     {: /* try to look up the id */
-	   symbol symb = symbols.get(symid);
+	   GrammarSymbol symb = symbols.get(symid);
 
 	   /* if that fails, symbol is undeclared */
 	   if (symb == null)

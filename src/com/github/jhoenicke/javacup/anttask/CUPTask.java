@@ -24,7 +24,7 @@ package com.github.jhoenicke.javacup.anttask;
 import org.apache.tools.ant.Task;
 import org.apache.tools.ant.BuildException;
 
-import com.github.jhoenicke.javacup.version;
+import com.github.jhoenicke.javacup.Version;
 
 import java.util.List;
 import java.util.ArrayList;
@@ -91,8 +91,8 @@ public class CUPTask extends Task
 	if (debug)         {  sc.add("-debug"); }
 	if (nopositions)   {  sc.add("-nopositions"); }
 	if (noscanner)     {  sc.add("-noscanner"); }
-	if (!quiet) log ("This is "+version.title_str);
-        if (!quiet) log ("Authors : "+version.author_str);
+	if (!quiet) log ("This is "+Version.title_str);
+        if (!quiet) log ("Authors : "+Version.author_str);
 	if (!quiet) log ("Bugreports to petter@cs.tum.edu");
 
 	// look for package name and add to destdir

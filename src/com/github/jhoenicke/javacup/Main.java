@@ -136,7 +136,7 @@ public class Main {
 				emit_erase(grammar);
 				
 			/* output the generated code, if # of conflicts permits */
-			if (ErrorManager.getManager().getWarningCount() != options.expect_conflicts) {
+			if (ErrorManager.getManager().getErrorCount() == 0 && ErrorManager.getManager().getWarningCount() != options.expect_conflicts) {
 				// conflicts! don't emit code, don't dump tables.
 				options.opt_dump_tables = false;
 			} else { // everything's okay, emit parser.
@@ -176,7 +176,7 @@ public class Main {
 	 */
 	private void usage() {
 		System.err.println();
-		System.err.println("Usage: " + version.program_name + " [options] [filename]\n"
+		System.err.println("Usage: " + Version.program_name + " [options] [filename]\n"
 				+ "  and expects a specification file on standard input if no filename is given.\n"
 				+ "  Legal options include:\n"
 				+ "    -package name  specify package generated classes go in [default none]\n"
@@ -226,7 +226,7 @@ public class Main {
 					return 1;
 				}
 			} else if (argv[i].equals("-version")) {
-				System.out.println(version.title_str);
+				System.out.println(Version.title_str);
 				return 1;
 			} else if (option.startsWith("-")) {
 				if (!options.setOption(option.substring(1))) {
@@ -300,13 +300,13 @@ public class Main {
 	private void check_unused(Grammar grammar) {
 		/* check for unused terminals */
 		unused_term = 0;
-		for (terminal term : grammar.terminals()) {
+		for (Terminal term : grammar.terminals()) {
 			/* don't issue a message for EOF */
-			if (term == terminal.EOF)
+			if (term == Terminal.EOF)
 				continue;
 
 			/* or error */
-			if (term == terminal.error)
+			if (term == Terminal.error)
 				continue;
 
 			/* is this one unused */
@@ -322,7 +322,7 @@ public class Main {
 
 		unused_non_term = 0;
 		/* check for unused non terminals */
-		for (non_terminal nt : grammar.non_terminals()) {
+		for (NonTerminal nt : grammar.non_terminals()) {
 			/* is this one unused */
 			if (nt.use_count() == 0 || nt.productions().size() == 0) {
 				/* count and warn if we are doing warnings */
@@ -399,7 +399,7 @@ public class Main {
 		}
 	}
 
-	private File buildFile (String filename, String extension) {
+	private File buildFile(String filename, String extension) {
 		String packageAsFileSystem = options.package_name.replace(".", "/");
 		File folder = new File(new File(options.dest_dir == null ? "." : options.dest_dir), packageAsFileSystem);
 		folder.mkdirs();
@@ -407,7 +407,7 @@ public class Main {
 		return file;
 	}
 
-	private void safeDelete (File file) {
+	private void safeDelete(File file) {
 		try {
 			if (file.exists())
 				file.delete();
@@ -416,7 +416,7 @@ public class Main {
 		}
 	}
 
-	private PrintWriter safeOpen (File file) {
+	private PrintWriter safeOpen(File file) {
 		PrintWriter writer = null;
 		try {
 			writer = new PrintWriter(new BufferedOutputStream(new FileOutputStream(file), 4096));
@@ -426,7 +426,7 @@ public class Main {
 		return writer;
 	}
 	
-	private void safeClose (PrintWriter writer, File file) {
+	private void safeClose(PrintWriter writer, File file) {
 		try {
 			if (writer != null)
 				writer.close();
@@ -446,7 +446,7 @@ public class Main {
 		PrintWriter symbol_class_file = safeOpen (file);
 		if (symbol_class_file != null) {
 			ErrorManager.getManager().emit_info("Generate Symbol file : "+file.getPath());
-			emit emit = new emit (options, timer);
+			Emit emit = new Emit (options, timer);
 			emit.symbols(symbol_class_file, grammar);
 		}
 		safeClose(symbol_class_file, file);
@@ -457,7 +457,7 @@ public class Main {
 		PrintWriter parser_class_file = safeOpen (file);
 		if (parser_class_file != null) {
 			ErrorManager.getManager().emit_info("Generate Parser file : "+file.getPath());
-			emit emit = new emit (options, timer);
+			Emit emit = new Emit (options, timer);
 			emit.parser(parser_class_file, grammar);
 		}
 		safeClose(parser_class_file, file);
@@ -468,7 +468,7 @@ public class Main {
 		PrintWriter dump_file = safeOpen (file);
 		if (dump_file != null) {
 			ErrorManager.getManager().emit_info("Generate Dump file : "+file.getPath());
-			emit emit = new emit (options, timer);
+			Emit emit = new Emit (options, timer);
 			emit.dumps(dump_file, grammar);
 		}
 		safeClose(dump_file, file);
@@ -499,7 +499,7 @@ public class Main {
 	 */
 	private void emit_summary(Grammar grammar, boolean output_produced) {
 
-		System.err.println("------- " + version.title_str + " Parser Generation Summary -------");
+		System.err.println("------- " + Version.title_str + " Parser Generation Summary -------");
 
 		/* error and warning count */
 		System.err.println("  " + ErrorManager.getManager().getErrorCount() + " error"
@@ -538,7 +538,7 @@ public class Main {
 		if (options.opt_show_timing)
 			show_times();
 
-		System.err.println("---------------------------------------------------- (" + version.version_str + ")");
+		System.err.println("---------------------------------------------------- (" + Version.version_str + ")");
 	}
 
 	/* . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . */

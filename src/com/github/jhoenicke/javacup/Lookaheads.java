@@ -14,13 +14,13 @@ import java.util.Stack;
  * @author hoenicke
  *
  */
-public class lookaheads extends terminal_set {
-  private ArrayList<lookaheads> _listeners;
+public class Lookaheads extends TerminalSet {
+  private ArrayList<Lookaheads> _listeners;
   
-  public lookaheads(terminal_set t)
+  public Lookaheads(TerminalSet t)
     {
       super(t);
-      _listeners = new ArrayList<lookaheads>();
+      _listeners = new ArrayList<Lookaheads>();
     }
 
   /** Add a listener object for propagations.  Whenever this object
@@ -28,12 +28,12 @@ public class lookaheads extends terminal_set {
       will also be updated.
       @param child the lookaheads object that is dependent on this.
    */
-  public void add_listener(lookaheads child)
+  public void add_listener(Lookaheads child)
     {
       _listeners.add(child); 
     }
 
-  private boolean add_without_prop(terminal_set new_lookaheads)
+  private boolean add_without_prop(TerminalSet new_lookaheads)
     {
       return super.add(new_lookaheads);
     }
@@ -42,16 +42,16 @@ public class lookaheads extends terminal_set {
       to all objects added by add_propagation().
       @param new_lookaheads  A set of new lookahead symbols.
    */
-  public boolean add(terminal_set new_lookaheads)
+  public boolean add(TerminalSet new_lookaheads)
     {
       if (!super.add(new_lookaheads))
 	return false;
       
-      Stack<lookaheads> work = new Stack<lookaheads>();
+      Stack<Lookaheads> work = new Stack<Lookaheads>();
       work.addAll(_listeners);
       while (!work.isEmpty())
 	{
-	  lookaheads la = work.pop();
+	  Lookaheads la = work.pop();
 	  if (la.add_without_prop(new_lookaheads))
 	    {
 	      work.addAll(la._listeners);

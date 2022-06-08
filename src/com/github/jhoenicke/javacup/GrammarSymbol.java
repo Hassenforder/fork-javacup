@@ -8,12 +8,12 @@ package com.github.jhoenicke.javacup;
  * number that indicates where it appears in parse tables (index numbers are
  * unique within terminals or non terminals, but not across both).
  *
- * @see     com.github.jhoenicke.javacup.terminal
- * @see     com.github.jhoenicke.javacup.non_terminal
+ * @see     com.github.jhoenicke.javacup.Terminal
+ * @see     com.github.jhoenicke.javacup.NonTerminal
  * @version last updated: 7/3/96
  * @author  Frank Flannery
  */
-public abstract class symbol implements Comparable<symbol> {
+public abstract class GrammarSymbol implements Comparable<GrammarSymbol> {
    /*-----------------------------------------------------------*/
    /*--- Constructor(s) ----------------------------------------*/
    /*-----------------------------------------------------------*/
@@ -23,7 +23,7 @@ public abstract class symbol implements Comparable<symbol> {
     * @param tp a string with the type name.
     * @param index the index of the symbol.
     */
-   public symbol(String nm, String tp, int index)
+   public GrammarSymbol(String nm, String tp, int index)
      {
        /* sanity check */
        if (nm == null) nm = "";
@@ -85,7 +85,7 @@ public abstract class symbol implements Comparable<symbol> {
 
   /*. . . . . . . . . . . . . . . . . . . . . . . . . . . . . .*/
   
-  public int compareTo(symbol other)
+  public int compareTo(GrammarSymbol other)
     {
       /* non terminals are larger than terminals */
       if (is_non_term() != other.is_non_term())
@@ -102,6 +102,6 @@ public abstract class symbol implements Comparable<symbol> {
 
   /*-----------------------------------------------------------*/
   
-  non_terminal _star_symbol, _plus_symbol, _opt_symbol;
+  NonTerminal _star_symbol, _plus_symbol, _opt_symbol;
 
 }

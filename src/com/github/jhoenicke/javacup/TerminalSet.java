@@ -5,7 +5,7 @@ package com.github.jhoenicke.javacup;
  * @version last updated: 2008-11-08
  * @author  Scott Hudson, Jochen Hoenicke
  */
-public class terminal_set {
+public class TerminalSet {
   private final static int LOG_BITS_PER_UNIT = 6;
   private final static int BITS_PER_UNIT = 64;
   private long[] _elements;
@@ -16,7 +16,7 @@ public class terminal_set {
   /*-----------------------------------------------------------*/
 
   /** Constructor for an empty set. */
-  public terminal_set(Grammar g) 
+  public TerminalSet(Grammar g) 
     { 
       /* allocate the bitset at what is probably the right size */
       _grammar = g;
@@ -28,7 +28,7 @@ public class terminal_set {
   /** Constructor for cloning from another set. 
    * @param other the set we are cloning from.
    */
-  public terminal_set(terminal_set other) 
+  public TerminalSet(TerminalSet other) 
     {
       this (other._grammar);
       _elements = other._elements.clone();
@@ -52,7 +52,7 @@ public class terminal_set {
   /** Determine if the set contains a particular terminal. 
    * @param sym the terminal symbol we are looking for.
    */
-  public boolean contains(terminal sym) 
+  public boolean contains(Terminal sym) 
     {
       return contains(sym.index());
     }
@@ -74,7 +74,7 @@ public class terminal_set {
   /** Determine if this set is an (improper) subset of another.
    * @param other the set we are testing against.
    */
-  public boolean is_subset_of(terminal_set other)
+  public boolean is_subset_of(TerminalSet other)
     {
       assert(other._elements.length == _elements.length);
       for (int i = 0; i < _elements.length; i++)
@@ -89,7 +89,7 @@ public class terminal_set {
    * @param sym the terminal being added.
    * @return true if this changes the set.
    */
-  public boolean add(terminal sym) 
+  public boolean add(Terminal sym) 
     {
       int indx = sym.index();
       int idx  = indx >> LOG_BITS_PER_UNIT;
@@ -104,7 +104,7 @@ public class terminal_set {
   /** Remove a terminal if it is in the set.
    * @param sym the terminal being removed.
    */
-  public void remove(terminal sym) 
+  public void remove(Terminal sym) 
     {
       int indx = sym.index();
       int idx  = indx >> LOG_BITS_PER_UNIT;
@@ -118,7 +118,7 @@ public class terminal_set {
    * @param other the set being added.
    * @return true if this changes the set.
    */
-  public boolean add(terminal_set other)
+  public boolean add(TerminalSet other)
     {
       assert(other._elements.length == _elements.length);
       boolean changed = false;
@@ -136,7 +136,7 @@ public class terminal_set {
   /** Determine if this set intersects another.
    * @param other the other set in question.
    */
-   public boolean intersects(terminal_set other)
+   public boolean intersects(TerminalSet other)
      {
        assert(other._elements.length == _elements.length);
        for (int i = 0; i < _elements.length; i++)
@@ -150,7 +150,7 @@ public class terminal_set {
   /*. . . . . . . . . . . . . . . . . . . . . . . . . . . . . .*/
 
   /** Equality comparison. */
-  public boolean equals(terminal_set other)
+  public boolean equals(TerminalSet other)
     {
       assert(other._elements.length == _elements.length);
       for (int i = 0; i < _elements.length; i++)
@@ -166,10 +166,10 @@ public class terminal_set {
   /** Generic equality comparison. */
   public boolean equals(Object other)
     {
-      if (!(other instanceof terminal_set))
+      if (!(other instanceof TerminalSet))
 	return false;
       else
-	return equals((terminal_set)other);
+	return equals((TerminalSet)other);
     }
   
   @Override

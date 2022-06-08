@@ -31,11 +31,11 @@ public class ErrorManager {
 		return errorManager;
 	}
 
-	public static void clear () {
+	public static void clear() {
 		errorManager = null;
 	}
 
-	private Set<String> getFilter () {
+	private Set<String> getFilter() {
 		if (filter == null) filter = new TreeSet<>();
 		return filter;
 	}
@@ -58,7 +58,7 @@ public class ErrorManager {
 	 *		ERRORLEVEL : MESSAGE
 	 **/
 	
-	private void emit (Severity severity, String message, Symbol sym) {
+	private void emit(Severity severity, String message, Symbol sym) {
 		if (sym != null && sym.value != null) {
 			if (getFilter().contains(sym.value.toString())) return;
 			getFilter().add(sym.value.toString());

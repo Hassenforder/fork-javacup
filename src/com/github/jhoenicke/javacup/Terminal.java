@@ -9,7 +9,7 @@ package com.github.jhoenicke.javacup;
  * @version last updated: 7/3/96
  * @author  Frank Flannery
  */
-public class terminal extends symbol {
+public class Terminal extends GrammarSymbol {
 
   /*-----------------------------------------------------------*/
   /*--- Constructor(s) ----------------------------------------*/
@@ -19,7 +19,7 @@ public class terminal extends symbol {
    * @param nm the name of the terminal.
    * @param tp the type of the terminal.
    */
-  public terminal(String nm, String tp, int precedence_side, int precedence_num, int index) 
+  public Terminal(String nm, String tp, int precedence_side, int precedence_num, int index) 
     {
       /* superclass does most of the work */
       super(nm, tp, index);
@@ -34,9 +34,9 @@ public class terminal extends symbol {
   /** Constructor for non-precedented terminal
     */ 
 
-  public terminal(String nm, String tp, int index) 
+  public Terminal(String nm, String tp, int index) 
     {
-      this(nm, tp, assoc.no_prec, -1, index);
+      this(nm, tp, Assoc.no_prec, -1, index);
     }
 
   /*. . . . . . . . . . . . . . . . . . . . . . . . . . . . . .*/
@@ -44,7 +44,7 @@ public class terminal extends symbol {
   /** Constructor with default type. 
    * @param nm the name of the terminal.
    */
-  public terminal(String nm, int index) 
+  public Terminal(String nm, int index) 
     {
       this(nm, null, index);
     }
@@ -61,12 +61,12 @@ public class terminal extends symbol {
   /*-----------------------------------------------------------*/
 
   /** Special terminal for end of input. */
-  public static terminal EOF = new terminal("EOF", 1);
+  public static Terminal EOF = new Terminal("EOF", 1);
 
   /*. . . . . . . . . . . . . . . . . . . . . . . . . . . . . .*/
 
   /** special terminal used for error recovery */
-  public static terminal error = new terminal("error", 0);
+  public static Terminal error = new Terminal("error", 0);
 
   /*-----------------------------------------------------------*/
   /*--- General Methods ---------------------------------------*/

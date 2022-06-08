@@ -6,21 +6,21 @@ package com.github.jhoenicke.javacup;
  * internally linked together into singly linked lists containing all the
  * transitions out of a single state via the next field.
  * 
- * @see com.github.jhoenicke.javacup.lalr_state
+ * @see com.github.jhoenicke.javacup.LalrState
  * @version last updated: 11/25/95
  * @author Scott Hudson
  * 
  */
-public class lalr_transition {
+public class LalrTransition {
   
   /** The symbol we make the transition on. */
-  public final symbol on_symbol;
+  public final GrammarSymbol on_symbol;
 
   /** The state we transition to. */
-  public final lalr_state to_state;
+  public final LalrState to_state;
 
   /** Next transition in linked list of transitions out of a state */
-  public final lalr_transition next;
+  public final LalrTransition next;
 
   /*-----------------------------------------------------------*/
   /*--- Constructor(s) ----------------------------------------*/
@@ -36,7 +36,7 @@ public class lalr_transition {
    * @param nxt
    *                next transition in linked list.
    */
-  public lalr_transition(symbol on_sym, lalr_state to_st, lalr_transition nxt)
+  public LalrTransition(GrammarSymbol on_sym, LalrState to_st, LalrTransition nxt)
     {
       /* sanity checks */
       assert on_sym != null : "Attempt to create transition on null symbol";

@@ -17,7 +17,7 @@ package com.github.jhoenicke.javacup;
  * @author  Frank Flannery
  */
 
-public class version {
+public class Version {
   /** The major version number. */
   public static final int major = 1;
 

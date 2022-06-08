@@ -45,16 +45,16 @@ public class Timer {
 		return times;
 	}
 	
-	public void clearAllTimer () {
+	public void clearAllTimers() {
 		starts = null;
 		times = null;
 	}
 
-	public void pushTimer () {
+	public void pushTimer() {
 		getStarts().add(System.currentTimeMillis());
 	}
 
-	public void popTimer (TIMESTAMP timeStamp) {
+	public void popTimer(TIMESTAMP timeStamp) {
 		if (getStarts().isEmpty()) {
 			ErrorManager.getManager().emit_fatal("Timer stack empty for : "+timeStamp.name());
 		}
@@ -63,15 +63,15 @@ public class Timer {
 		getTimes().put(timeStamp, current-started );
 	}
 
-	public void insertTime (TIMESTAMP timeStamp) {
+	public void insertTime(TIMESTAMP timeStamp) {
 		getTimes().put(timeStamp, System.currentTimeMillis());
 	}
 
-	public boolean hasTime (TIMESTAMP timeStamp) {
+	public boolean hasTime(TIMESTAMP timeStamp) {
 		return getTimes().containsKey(timeStamp);
 	}
 	
-	public long getTime (TIMESTAMP timeStamp) {
+	public long getTime(TIMESTAMP timeStamp) {
 		return getTimes().get(timeStamp);
 	}
 

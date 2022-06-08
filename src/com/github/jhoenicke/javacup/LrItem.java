@@ -13,14 +13,14 @@ package com.github.jhoenicke.javacup;
  *  See lalr_state for full details on the meaning 
  *  and use of items.
  *
- * @see     com.github.jhoenicke.javacup.lalr_state
+ * @see     com.github.jhoenicke.javacup.LalrState
  * @author  Scott Hudson
 */
 
-public class lr_item implements Comparable<lr_item> {
+public class LrItem implements Comparable<LrItem> {
 
   /** The production for the item. */
-  public final production the_production;
+  public final Production the_production;
 
   /** The position of the "dot" -- this indicates the part of the production 
    *  that the marker is before, so 0 indicates a dot at the beginning of 
@@ -31,7 +31,7 @@ public class lr_item implements Comparable<lr_item> {
   /**
    * The shifted item.  This is generated when shift_item() is first called.
    */
-  private lr_item _shifted;
+  private LrItem _shifted;
   
   /*-----------------------------------------------------------*/
   /*--- Constructor(s) ----------------------------------------*/
@@ -41,7 +41,7 @@ public class lr_item implements Comparable<lr_item> {
    * @param prod production this item uses.
    * @param pos  position of the "dot" within the item.
    */
-  private lr_item(production prod, int pos)
+  private LrItem(Production prod, int pos)
     {
       assert prod != null: "Attempt to create an lr_item_core with a null production";
 
@@ -59,7 +59,7 @@ public class lr_item implements Comparable<lr_item> {
    * called once for each production from production.item().
    * @param prod production this item uses.
    */
-  lr_item(production prod)
+  LrItem(Production prod)
     {
       this(prod,0);
     }
@@ -78,7 +78,7 @@ public class lr_item implements Comparable<lr_item> {
 
   /** Return the symbol after the dot.  If there is no symbol after the dot
    *  we return null. */
-  public final symbol symbol_after_dot()
+  public final GrammarSymbol symbol_after_dot()
     {
       if (dot_pos < the_production.rhs_length())
 	{
@@ -92,16 +92,16 @@ public class lr_item implements Comparable<lr_item> {
   /** Determine if we have a dot before a non terminal, and if so which one 
    *  (return null or the non terminal). 
    */
-  public non_terminal dot_before_nt()
+  public NonTerminal dot_before_nt()
     {
-      symbol sym;
+      GrammarSymbol sym;
 
       /* get the symbol after the dot */
       sym = symbol_after_dot();
 
       /* if it exists and is a non terminal, return it */
-      if (sym instanceof non_terminal)
-	return (non_terminal)sym;
+      if (sym instanceof NonTerminal)
+	return (NonTerminal)sym;
       else
 	return null;
     }
@@ -111,13 +111,13 @@ public class lr_item implements Comparable<lr_item> {
   /** Get the lr_item_core that results from shifting the dot one 
    *  position to the right. 
    */
-  public lr_item shift_item()
+  public LrItem shift_item()
     {
       assert !dot_at_end() : 
 	  "Attempt to shift past end of an lr_item";
 
       if (_shifted == null)
-	_shifted = new lr_item(the_production, dot_pos+1);
+	_shifted = new LrItem(the_production, dot_pos+1);
       return _shifted;
     }
 
@@ -127,7 +127,7 @@ public class lr_item implements Comparable<lr_item> {
    * Compare two items.  They are compared by index of production_rule first.
    * If productions are the same, they are compared by dot position.
    */
-  public int compareTo(lr_item item)
+  public int compareTo(LrItem item)
     {
       if (the_production != item.the_production)
 	return the_production.index() - item.the_production.index();
@@ -167,25 +167,25 @@ public class lr_item implements Comparable<lr_item> {
    *   not be invoked before first sets and nullability has been calculated
    *   for all non terminals. 
    */ 
-  public terminal_set calc_lookahead(Grammar grammar) 
+  public TerminalSet calc_lookahead(Grammar grammar) 
     {
       /* start with an empty result */
-      terminal_set result = new terminal_set(grammar);
+      TerminalSet result = new TerminalSet(grammar);
 
       /* consider all nullable symbols after the one to the right of the dot */
       for (int pos = dot_pos; pos < the_production.rhs_length(); pos++) 
   	{
-  	   symbol sym = the_production.rhs(pos).the_symbol;
+  	   GrammarSymbol sym = the_production.rhs(pos).the_symbol;
 
   	   /* if its a terminal add it in and we are done */
   	   if (!sym.is_non_term())
   	     {
-  	       result.add((terminal)sym);
+  	       result.add((Terminal)sym);
   	       break;
   	     }
   	   else
   	     {
-  	       non_terminal nt = (non_terminal) sym;
+  	       NonTerminal nt = (NonTerminal) sym;
   	       /* otherwise add in first set of the non terminal */
   	       result.add(nt.first_set());
 
@@ -211,13 +211,13 @@ public class lr_item implements Comparable<lr_item> {
       /* walk down the rhs and bail if we get a non-nullable symbol */
       for (int pos = dot_pos; pos < the_production.rhs_length(); pos++)
   	{
-  	  symbol sym = the_production.rhs(pos).the_symbol;
+  	  GrammarSymbol sym = the_production.rhs(pos).the_symbol;
 
   	  /* if its a terminal we fail */
   	  if (!sym.is_non_term()) return false;
 
   	  /* if its not nullable we fail */
-  	  if (!((non_terminal)sym).nullable()) return false;
+  	  if (!((NonTerminal)sym).nullable()) return false;
   	}
 
       /* if we get here its all nullable */

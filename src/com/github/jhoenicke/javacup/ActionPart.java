@@ -7,12 +7,12 @@ package com.github.jhoenicke.javacup;
  * to trailing actions by factoring out with a production that derives the
  * empty string (and ends with this action).
  *
- * @see com.github.jhoenicke.javacup.production
+ * @see com.github.jhoenicke.javacup.Production
  * @version last update: 11/25/95
  * @author Scott Hudson
  */
 
-public class action_part extends production_part {
+public class ActionPart extends ProductionPart {
 
   /*-----------------------------------------------------------*/
   /*--- Constructors ------------------------------------------*/
@@ -21,7 +21,7 @@ public class action_part extends production_part {
   /** Simple constructor. 
    * @param code_str string containing the actual user code.
    */
-  public action_part(String code_str)
+  public ActionPart(String code_str)
     {
       _code_string = code_str;
     }

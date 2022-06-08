@@ -17,7 +17,7 @@ import java.util.TreeSet;
  *
  * @author  Scott Hudson, Jochen Hoenicke
  */
-public class parse_action_table {
+public class ParseActionTable {
 
   /** Actual array of rows, one per state. */
   public final int[][] table;
@@ -39,7 +39,7 @@ public class parse_action_table {
    *  already have been entered, and the viable prefix recognizer should
    *  have been constructed before this is called.
    */
-  public parse_action_table(Grammar grammar)
+  public ParseActionTable(Grammar grammar)
     {
       /* determine how many states we are working with */
       int _num_states = grammar.lalr_states().size();

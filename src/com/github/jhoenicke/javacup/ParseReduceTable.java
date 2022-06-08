@@ -11,10 +11,10 @@ import java.util.TreeSet;
  *
  * @author  Scott Hudson, Jochen Hoenicke
  */
-public class parse_reduce_table {
+public class ParseReduceTable {
  
   /** Actual parse_reduce matrix, indexed by state and non-terminal. */
-  public  lalr_state[][] table;
+  public  LalrState[][] table;
  
   /*-----------------------------------------------------------*/
   /*--- Constructor(s) ----------------------------------------*/
@@ -24,14 +24,14 @@ public class parse_reduce_table {
    *  must already have been entered, and the viable prefix recognizer should
    *  have been constructed before this is called.
    */
-  public parse_reduce_table(Grammar grammar)
+  public ParseReduceTable(Grammar grammar)
     {
       /* determine how many states we are working with */
       _num_states = grammar.lalr_states().size();
       _num_nonterm = grammar.num_non_terminals();
 
       /* allocate the array and fill it in with empty rows */
-      table = new lalr_state[_num_states][_num_nonterm];
+      table = new LalrState[_num_states][_num_nonterm];
     }
 
    
@@ -112,7 +112,7 @@ public class parse_reduce_table {
   public String toString()
     {
       StringBuilder result = new StringBuilder();
-      lalr_state goto_st;
+      LalrState goto_st;
       int cnt;
 
       result.append("-------- REDUCE_TABLE --------\n");

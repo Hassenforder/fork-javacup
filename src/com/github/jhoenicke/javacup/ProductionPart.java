@@ -7,14 +7,14 @@ package com.github.jhoenicke.javacup;
  * @version last updated: 11/25/95
  * @author  Scott Hudson
  */
-public abstract class production_part {
+public abstract class ProductionPart {
 
   /*-----------------------------------------------------------*/
   /*--- Constructor(s) ----------------------------------------*/
   /*-----------------------------------------------------------*/
        
   /** Simple constructor. */
-  public production_part()
+  public ProductionPart()
     {
     }
 }

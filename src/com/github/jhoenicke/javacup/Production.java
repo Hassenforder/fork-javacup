@@ -14,14 +14,14 @@ package com.github.jhoenicke.javacup;
  * (i.e., the set of terminals that could appear at the beginning of some string
  * derived from the production, see check_first_set()).
  * 
- * @see com.github.jhoenicke.javacup.production_part
- * @see com.github.jhoenicke.javacup.symbol_part
- * @see com.github.jhoenicke.javacup.action_part
+ * @see com.github.jhoenicke.javacup.ProductionPart
+ * @see com.github.jhoenicke.javacup.SymbolPart
+ * @see com.github.jhoenicke.javacup.ActionPart
  * @version last updated: 7/3/96
  * @author Frank Flannery
  */
 
-public class production {
+public class Production {
 
   /*-----------------------------------------------------------*/
   /*--- Constructor(s) ----------------------------------------*/
@@ -57,8 +57,8 @@ public class production {
    * actions at the end where they can be handled as part of a reduce by the
    * parser.
    */
-  public production(int index, int action_index, non_terminal lhs_sym, symbol_part rhs[], 
-      	int last_act_loc, action_part action, terminal precedence)
+  public Production(int index, int action_index, NonTerminal lhs_sym, SymbolPart rhs[], 
+      	int last_act_loc, ActionPart action, Terminal precedence)
     {
       if (precedence != null)
 	{
@@ -72,14 +72,14 @@ public class production {
       _action_index = action_index;
       for (int i = 0; i < rhs.length; i++)
 	{
-	  symbol rhs_sym = rhs[i].the_symbol;
+	  GrammarSymbol rhs_sym = rhs[i].the_symbol;
 	  if (rhs_sym != null) rhs_sym.note_use();
-	  if (precedence == null && rhs_sym instanceof terminal)
+	  if (precedence == null && rhs_sym instanceof Terminal)
 	    {
-	      terminal term = (terminal) rhs_sym;
-	      if (term.precedence_num() != assoc.no_prec)
+	      Terminal term = (Terminal) rhs_sym;
+	      if (term.precedence_num() != Assoc.no_prec)
 		{
-		  if (_rhs_prec == assoc.no_prec)
+		  if (_rhs_prec == Assoc.no_prec)
 		    {
 		      _rhs_prec = term.precedence_num();
 		      _rhs_assoc = term.precedence_side();
@@ -102,10 +102,10 @@ public class production {
   /*-----------------------------------------------------------*/
 
   /** The left hand side non-terminal. */
-  private final non_terminal _lhs;
+  private final NonTerminal _lhs;
 
   /** The left hand side non-terminal. */
-  public non_terminal lhs()
+  public NonTerminal lhs()
     {
       return _lhs;
     }
@@ -128,10 +128,10 @@ public class production {
   /* . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . */
 
   /** A collection of parts for the right hand side. */
-  private final symbol_part _rhs[];
+  private final SymbolPart _rhs[];
 
   /** Access to the collection of parts for the right hand side. */
-  public symbol_part rhs(int indx)
+  public SymbolPart rhs(int indx)
     {
       return _rhs[indx];
     }
@@ -155,13 +155,13 @@ public class production {
    * An action_part containing code for the action to be performed when we
    * reduce with this production.
    */
-  private final action_part _action;
+  private final ActionPart _action;
 
   /**
    * An action_part containing code for the action to be performed when we
    * reduce with this production.
    */
-  public action_part action()
+  public ActionPart action()
     {
       return _action;
     }
@@ -186,13 +186,13 @@ public class production {
   /* . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . */
 
   /** initial lr item corresponding to the production. */
-  private lr_item _itm;
+  private LrItem _itm;
 
   /** Index number of the production. */
-  public lr_item item()
+  public LrItem item()
     {
       if (_itm == null)
-	_itm = new lr_item(this);
+	_itm = new LrItem(this);
       return _itm;
     }
 
@@ -242,13 +242,13 @@ public class production {
       for (int pos = 0; pos < rhs_length(); pos++)
 	{
 	  /* only look at non-actions */
-	  symbol sym = _rhs[pos].the_symbol;
+	  GrammarSymbol sym = _rhs[pos].the_symbol;
 
 	  /* if its a terminal we are definitely not nullable */
 	  if (!sym.is_non_term())
 	    return set_nullable(false);
 	  /* its a non-term, is it marked nullable */
-	  else if (!((non_terminal) sym).nullable())
+	  else if (!((NonTerminal) sym).nullable())
 	    /* this one not (yet) nullable, so we aren't */
 	    return false;
 	}
@@ -277,7 +277,7 @@ public class production {
    * that nullability has already been computed for all non terminals and
    * productions.
    */
-  public terminal_set first_set(Grammar grammar)
+  public TerminalSet first_set(Grammar grammar)
     {
       return item().calc_lookahead(grammar);
     }
@@ -291,7 +291,7 @@ public class production {
 
       result.append(lhs().name()).append(" ::= ");
       for (int i = 0; i < rhs_length(); i++) {
-    	  symbol s = rhs(i).the_symbol;
+    	  GrammarSymbol s = rhs(i).the_symbol;
     	  //MH 07/07/2022 the_symbol can be null if a terminal is not declared
     	  if (s == null) result.append("***UNDECLARED***");
     	  else result.append(s.name());

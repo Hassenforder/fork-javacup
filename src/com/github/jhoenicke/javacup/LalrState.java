@@ -43,14 +43,14 @@ import java.util.Map.Entry;
  *  replaced all the symbols from the the input corresponding to the RHS with 
  *  the symbol on the LHS.</p>
  *
- * @see     com.github.jhoenicke.javacup.lr_item
- * @see     com.github.jhoenicke.javacup.lalr_transition
+ * @see     com.github.jhoenicke.javacup.LrItem
+ * @see     com.github.jhoenicke.javacup.LalrTransition
  * @version last updated: 7/3/96
  * @author  Frank Flannery
  *  
  */
 
-public class lalr_state {
+public class LalrState {
   /*-----------------------------------------------------------*/
   /*--- Constructor(s) ----------------------------------------*/
   /*-----------------------------------------------------------*/
@@ -59,7 +59,7 @@ public class lalr_state {
    * @param kernel the set of items that makes up the kernel of this state.
    * @param index  a unique index that is given to this state.
    */
-  public lalr_state(Map<lr_item, terminal_set> kernel, int index)
+  public LalrState(Map<LrItem, TerminalSet> kernel, int index)
    {
      /* don't allow null or duplicate item sets */
      if (kernel == null)
@@ -70,9 +70,9 @@ public class lalr_state {
       _index = index;
 
      /* store the items */
-     _items = new TreeMap<lr_item, lookaheads>();
-     for (Entry<lr_item, terminal_set> entry : kernel.entrySet())
-       _items.put(entry.getKey(), new lookaheads(entry.getValue()));
+     _items = new TreeMap<LrItem, Lookaheads>();
+     for (Entry<LrItem, TerminalSet> entry : kernel.entrySet())
+       _items.put(entry.getKey(), new Lookaheads(entry.getValue()));
    }
   
  /*-----------------------------------------------------------*/
@@ -80,15 +80,15 @@ public class lalr_state {
   /*-----------------------------------------------------------*/
 
   /** The item set for this state. */
-  private TreeMap<lr_item, lookaheads> _items;
+  private TreeMap<LrItem, Lookaheads> _items;
 
   /** The item set for this state. */
-  public TreeMap<lr_item, lookaheads> items() {return _items;}
+  public TreeMap<LrItem, Lookaheads> items() {return _items;}
 
   /*. . . . . . . . . . . . . . . . . . . . . . . . . . . . . .*/
 
   /** List of transitions out of this state. */
-  private lalr_transition _transitions = null;
+  private LalrTransition _transitions = null;
 
   /** Index of this state in the parse tables */
   private int _index;
@@ -117,24 +117,24 @@ public class lalr_state {
    */
   public void compute_closure(Grammar grammar)
     {
-      terminal_set  new_lookaheads;
+      TerminalSet  new_lookaheads;
       boolean       need_prop;
 
       /* each current element needs to be considered */
-      Stack<lr_item> consider = new Stack<lr_item>();
+      Stack<LrItem> consider = new Stack<LrItem>();
       consider.addAll(_items.keySet());
 
       /* repeat this until there is nothing else to consider */
       while (consider.size() > 0)
 	{
 	  /* get one item to consider */
-	  lr_item itm = consider.pop();
+	  LrItem itm = consider.pop();
 
 	  /* do we have a dot before a non terminal */
-	  non_terminal nt = itm.dot_before_nt();
+	  NonTerminal nt = itm.dot_before_nt();
 	  if (nt != null)
 	    {
-	      lr_item nextitm = itm.shift_item();
+	      LrItem nextitm = itm.shift_item();
 	      /* create the lookahead set based on first symbol after dot */
 	      new_lookaheads = nextitm.calc_lookahead(grammar);
 
@@ -144,11 +144,11 @@ public class lalr_state {
 		new_lookaheads.add(_items.get(itm));
 	      
 	      /* create items for each production of that non term */
-	      for (production prod : nt.productions() )
+	      for (Production prod : nt.productions() )
 		{
 		  /* create new item with dot at start and that lookahead */
-		  lr_item new_itm = prod.item();
-		  lookaheads new_la;
+		  LrItem new_itm = prod.item();
+		  Lookaheads new_la;
 		  if (_items.containsKey(new_itm))
 		    {
 		      new_la = _items.get(new_itm); 
@@ -156,7 +156,7 @@ public class lalr_state {
 		    }
 		  else
 		    {
-		      new_la = new lookaheads(new_lookaheads);
+		      new_la = new Lookaheads(new_lookaheads);
 		      _items.put(new_itm, new_la);
 		      /* that may need further closure, consider it also */ 
 		      consider.push(new_itm);
@@ -173,39 +173,39 @@ public class lalr_state {
   public void compute_successors(Grammar grammar) 
     {
       /* gather up all the symbols that appear before dots */
-      TreeMap<symbol, ArrayList<lr_item>> outgoing =
-	new TreeMap<symbol, ArrayList<lr_item>>();
-      for (lr_item itm : _items.keySet() )
+      TreeMap<GrammarSymbol, ArrayList<LrItem>> outgoing =
+	new TreeMap<GrammarSymbol, ArrayList<LrItem>>();
+      for (LrItem itm : _items.keySet() )
 	{
 	  /* add the symbol after the dot (if any) to our collection */
-	  symbol sym = itm.symbol_after_dot();
+	  GrammarSymbol sym = itm.symbol_after_dot();
 	  if (sym != null)
 	    {
 	      if (!outgoing.containsKey(sym))
-		outgoing.put(sym, new ArrayList<lr_item>());
+		outgoing.put(sym, new ArrayList<LrItem>());
 	      outgoing.get(sym).add(itm);
 	    }
 	}
       
       /* now create a transition out for each individual symbol */
-      for (symbol out : outgoing.keySet() )
+      for (GrammarSymbol out : outgoing.keySet() )
 	{
 	  /* gather up shifted versions of all the items that have this
 		 symbol before the dot */
-	  TreeMap<lr_item, terminal_set> new_items = new TreeMap<lr_item, terminal_set>();
+	  TreeMap<LrItem, TerminalSet> new_items = new TreeMap<LrItem, TerminalSet>();
 
 	  /* find proxy symbols on the way */
-	  ArrayList<symbol> proxy_symbols = new ArrayList<symbol>();
+	  ArrayList<GrammarSymbol> proxy_symbols = new ArrayList<GrammarSymbol>();
 	  proxy_symbols.add(out);	  
 	  for (int i = 0; i < proxy_symbols.size(); i++)
 	    {
-	      symbol sym = proxy_symbols.get(i);
-	      for (lr_item itm : outgoing.get(sym))
+	      GrammarSymbol sym = proxy_symbols.get(i);
+	      for (LrItem itm : outgoing.get(sym))
 		{
 		  /* add to the kernel of the new state */
 		  if (itm.the_production.is_proxy())
 		    {
-		      symbol proxy = itm.the_production.lhs();
+		      GrammarSymbol proxy = itm.the_production.lhs();
 		      if (!proxy_symbols.contains(proxy))
 			{
 			  proxy_symbols.add(proxy);
@@ -219,10 +219,10 @@ public class lalr_state {
 	    }
 
 	  /* create/get successor state */
-	  lalr_state new_st = grammar.get_lalr_state(new_items);
-	  for (symbol sym : proxy_symbols)
+	  LalrState new_st = grammar.get_lalr_state(new_items);
+	  for (GrammarSymbol sym : proxy_symbols)
 	    {
-	      for (lr_item itm : outgoing.get(sym))
+	      for (LrItem itm : outgoing.get(sym))
 		{
 		  /* ... remember that itm has propagate link to it */
 		  if (!itm.the_production.is_proxy())
@@ -234,7 +234,7 @@ public class lalr_state {
 	    }
 
 	  /* add a transition from current state to that state */
-	  _transitions = new lalr_transition(out, new_st, _transitions);
+	  _transitions = new LalrTransition(out, new_st, _transitions);
 	}
     }
  
@@ -244,12 +244,12 @@ public class lalr_state {
    *  propagates to all items that have propagation links from some item 
    *  in this state. 
    */
-  public void propagate_lookaheads(Map<lr_item, terminal_set> new_kernel)
+  public void propagate_lookaheads(Map<LrItem, TerminalSet> new_kernel)
     {
       /* Add the new lookaheads to the existing ones.
        * This will propagate the lookaheads to all dependent items.
        */
-      for (Entry<lr_item, terminal_set> entry : new_kernel.entrySet())
+      for (Entry<LrItem, TerminalSet> entry : new_kernel.entrySet())
 	{
 	  _items.get(entry.getKey()).add(entry.getValue());
 	}
@@ -279,30 +279,30 @@ public class lalr_state {
    * @param reduce_table the reduce-goto table to put entries in.
    */
   public void build_table_entries(Grammar grammar,
-    parse_action_table act_table, 
-    parse_reduce_table reduce_table,
+    ParseActionTable act_table, 
+    ParseReduceTable reduce_table,
     boolean compact_reduces)
     {
       int     act;
-      symbol  sym;
+      GrammarSymbol  sym;
       
       int        default_lasize = 0;
-      int	 default_action = parse_action_table.ERROR;
+      int	 default_action = ParseActionTable.ERROR;
       boolean    default_prodisempty = false;
 
       /* pull out our rows from the tables */
       int[] our_act_row = act_table.table[index()];
-      production[] productions = new production[grammar.num_terminals()+1];
-      lalr_state[] our_red_row = reduce_table.table[index()];
+      Production[] productions = new Production[grammar.num_terminals()+1];
+      LalrState[] our_red_row = reduce_table.table[index()];
 
       /* consider each item in our state */
-      for (Entry<lr_item, lookaheads> itm : items().entrySet())
+      for (Entry<LrItem, Lookaheads> itm : items().entrySet())
 	{
 	  /* if its completed (dot at end) then reduce under the lookahead */
 	  if (itm.getKey().dot_at_end())
 	    {
 	      boolean conflict = false;
-	      act = parse_action_table.action(parse_action_table.REDUCE,
+	      act = ParseActionTable.action(ParseActionTable.REDUCE,
 		  itm.getKey().the_production.action_index());
 	      int lasize = 0;
 
@@ -314,7 +314,7 @@ public class lalr_state {
 		  lasize++;
 
 	          /* if we don't already have an action put this one in */
-	          if (our_act_row[t] == parse_action_table.ERROR)
+	          if (our_act_row[t] == ParseActionTable.ERROR)
 		    {
 	              our_act_row[t] = act;
 	              productions[t] = itm.getKey().the_production;
@@ -333,7 +333,7 @@ public class lalr_state {
 	       */
 	      if (conflict)
 		{
-		  for (Entry<lr_item,lookaheads> compare : items().entrySet())
+		  for (Entry<LrItem,Lookaheads> compare : items().entrySet())
 		    {
 		      /* the compare item must be in a before this item in the entrySet */
 		      if (itm.getKey() == compare.getKey())
@@ -354,7 +354,7 @@ public class lalr_state {
 	       */
 	      if (compact_reduces && lasize > default_lasize) 
 		{
-		  production prod = itm.getKey().the_production;
+		  Production prod = itm.getKey().the_production;
 		  /* don't make it default if it doesn't save a rule */ 
 		  if (prod.rhs_length() != 0 || lasize > 1)
 		    {
@@ -367,27 +367,27 @@ public class lalr_state {
 	}
 
       /* consider each outgoing transition */
-      for (lalr_transition trans=_transitions; trans!=null; trans=trans.next)
+      for (LalrTransition trans=_transitions; trans!=null; trans=trans.next)
 	{
 	  /* if its on an terminal add a shift entry */
 	  sym = trans.on_symbol;
 	  int idx = sym.index();
 	  if (!sym.is_non_term())
 	    {
-	      act = parse_action_table.action
-	      	(parse_action_table.SHIFT, trans.to_state.index());
+	      act = ParseActionTable.action
+	      	(ParseActionTable.SHIFT, trans.to_state.index());
 	      /* if we don't already have an action put this one in */
-	      if (our_act_row[idx] == parse_action_table.ERROR)
+	      if (our_act_row[idx] == ParseActionTable.ERROR)
 		{
 	          our_act_row[sym.index()] = act;
 		}
 	      else
 		{
 		  /* this is a shift_reduce conflict */
-		  production p = productions[idx];
+		  Production p = productions[idx];
 
 		  /* check if precedence can fix it */
-		  if (!fix_with_precedence(p, (terminal) sym, our_act_row, act))
+		  if (!fix_with_precedence(p, (Terminal) sym, our_act_row, act))
 		    {
 		      /* shift always wins */
 		      our_act_row[idx] = act;
@@ -405,15 +405,15 @@ public class lalr_state {
       /* Check if there is already an action for the error symbol.
        * This must be the default action.
        */
-      act = our_act_row[terminal.error.index()]; 
-      if (act != parse_action_table.ERROR)
+      act = our_act_row[Terminal.error.index()]; 
+      if (act != ParseActionTable.ERROR)
 	{
-	  default_action = parse_action_table.isReduce(act) ? act 
-		: parse_action_table.ERROR; 
+	  default_action = ParseActionTable.isReduce(act) ? act 
+		: ParseActionTable.ERROR; 
 	  default_prodisempty = false;
 	}
       our_act_row[grammar.num_terminals()] = default_action;
-      if (default_action != parse_action_table.ERROR)
+      if (default_action != ParseActionTable.ERROR)
 	{
 	  for (int i = 0; i < grammar.num_terminals(); i++)
 	    {
@@ -421,8 +421,8 @@ public class lalr_state {
 	       * if default_action reduces an empty production.
 	       * The latter may otherwise lead to infinite loops.
 	       */
-	      if (our_act_row[i] == parse_action_table.ERROR
-		  && (i != terminal.error.index() || !default_prodisempty))
+	      if (our_act_row[i] == ParseActionTable.ERROR
+		  && (i != Terminal.error.index() || !default_prodisempty))
 		our_act_row[i] = default_action;
 	    }
 	}
@@ -450,20 +450,20 @@ public class lalr_state {
    *  @param act         the rule in conflict with the table entry
    */
   private boolean fix_with_precedence(
-		        production       p,
-			terminal         term,
+		        Production       p,
+			Terminal         term,
 			int[]            table_row,
 			int              shift_act)
     {
       /* if both production and terminal have a precedence number, 
        * it can be fixed */
-      if (p.precedence_num() > assoc.no_prec
-	  && term.precedence_num() > assoc.no_prec) 
+      if (p.precedence_num() > Assoc.no_prec
+	  && term.precedence_num() > Assoc.no_prec) 
 	{
 
 	  int compare = term.precedence_num() - p.precedence_num();
 	  if (compare == 0)
-	    compare = term.precedence_side() - assoc.nonassoc; 
+	    compare = term.precedence_side() - Assoc.nonassoc; 
 
 	  /* if production precedes terminal, keep reduce in table */
 	  if (compare < 0)
@@ -488,11 +488,11 @@ public class lalr_state {
   public String toString()
     {
       StringBuilder result = new StringBuilder();
-      lalr_transition tr;
+      LalrTransition tr;
 
       /* dump the item set */
       result.append("lalr_state [").append(index()).append("]: {\n");
-      for (Entry<lr_item,lookaheads> itm : items().entrySet()) 
+      for (Entry<LrItem,Lookaheads> itm : items().entrySet()) 
 	{
 	  /* print the kernel first */
 	  if (itm.getKey().dot_pos == 0)
@@ -500,7 +500,7 @@ public class lalr_state {
 	  result.append("  [").append(itm.getKey()).append(", ");
 	  result.append(itm.getValue()).append("]\n");
 	}
-      for (Entry<lr_item,lookaheads> itm : items().entrySet()) 
+      for (Entry<LrItem,Lookaheads> itm : items().entrySet()) 
 	{
 	  /* do not print the kernel */
 	  if (itm.getKey().dot_pos != 0)
