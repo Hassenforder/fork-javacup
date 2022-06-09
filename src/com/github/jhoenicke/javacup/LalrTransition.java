@@ -14,17 +14,13 @@ package com.github.jhoenicke.javacup;
 public class LalrTransition {
 
 	/** The symbol we make the transition on. */
-	public final GrammarSymbol on_symbol;
+	public final GrammarSymbol onSymbol;
 
 	/** The state we transition to. */
-	public final LalrState to_state;
+	public final LalrState toState;
 
 	/** Next transition in linked list of transitions out of a state */
 	public final LalrTransition next;
-
-	/*-----------------------------------------------------------*/
-	/*--- Constructor(s) ----------------------------------------*/
-	/*-----------------------------------------------------------*/
 
 	/**
 	 * Full constructor.
@@ -33,21 +29,19 @@ public class LalrTransition {
 	 * @param to_st  state we transition to.
 	 * @param nxt    next transition in linked list.
 	 */
-	public LalrTransition(GrammarSymbol on_sym, LalrState to_st, LalrTransition nxt) {
+	public LalrTransition(GrammarSymbol onSymbol, LalrState toState, LalrTransition next) {
 		/* sanity checks */
-		assert on_sym != null : "Attempt to create transition on null symbol";
-		assert to_st != null : "Attempt to create transition to null state";
+		assert onSymbol != null : "Attempt to create transition on null symbol";
+		assert toState != null : "Attempt to create transition to null state";
 
 		/* initialize */
-		on_symbol = on_sym;
-		to_state = to_st;
-		next = nxt;
+		this.onSymbol = onSymbol;
+		this.toState = toState;
+		this.next = next;
 	}
 
-	/* . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . */
-
-	/** Convert to a string. */
 	public String toString() {
-		return "transition on " + on_symbol.name() + " to state [" + to_state.index() + "]";
+		return "transition on " + onSymbol.getName() + " to state [" + toState.index() + "]";
 	}
+
 }

@@ -19,7 +19,7 @@ import java.util.TreeSet;
 public class ParseActionTable {
 
 	/** Actual array of rows, one per state. */
-	public final int[][] table;
+	private final int[][] table;
 
 	/** Constant for action type -- error action. */
 	public static final int ERROR = 0;
@@ -30,10 +30,6 @@ public class ParseActionTable {
 	/** Constants for action type -- reduce action. */
 	public static final int REDUCE = 2;
 
-	/*-----------------------------------------------------------*/
-	/*--- Constructor(s) ----------------------------------------*/
-	/*-----------------------------------------------------------*/
-
 	/**
 	 * Simple constructor. All terminals, non-terminals, and productions must
 	 * already have been entered, and the viable prefix recognizer should have been
@@ -41,44 +37,45 @@ public class ParseActionTable {
 	 */
 	public ParseActionTable(Grammar grammar) {
 		/* determine how many states we are working with */
-		int _num_states = grammar.lalr_states().size();
-		int _num_terminals = grammar.num_terminals();
+		int stateCount = grammar.getLalrStates().size();
+		int terminalCount = grammar.getTerminalCount();
 
 		/* allocate the array and fill it in with empty rows */
-		table = new int[_num_states][_num_terminals + 1];
+		table = new int[stateCount][terminalCount + 1];
 	}
 
-	/*-----------------------------------------------------------*/
-	/*--- General Methods ---------------------------------------*/
-	/*-----------------------------------------------------------*/
+	public int[][] getTable() {
+		return table;
+	}
+
 	/**
 	 * Returns the action code for the given kind and index.
 	 * 
 	 * @param kind  the kind of the action: ERROR, SHIFT or REDUCE.
 	 * @param index the index of the destination state resp. production rule.
 	 */
-	public static int action(int kind, int index) {
+	public static int createActionCode(int kind, int index) {
 		return 2 * index + kind;
 	}
 
 	/**
 	 * Returns true if the code represent a reduce action
 	 * 
-	 * @param code the action code.
+	 * @param actionCode the action code.
 	 * @return true for reduce actions.
 	 */
-	public static boolean isReduce(int code) {
-		return code != 0 && (code & 1) == 0;
+	public static boolean isReduce(int actionCode) {
+		return actionCode != 0 && (actionCode & 1) == 0;
 	}
 
 	/**
 	 * Returns true if the code represent a shift action
 	 * 
-	 * @param code the action code.
+	 * @param actionCode the action code.
 	 * @return true for shift actions.
 	 */
-	public static boolean isShift(int code) {
-		return (code & 1) != 0;
+	public static boolean isShift(int actionCode) {
+		return (actionCode & 1) != 0;
 	}
 
 	/**
@@ -88,17 +85,17 @@ public class ParseActionTable {
 	 * @param code the action code.
 	 * @return the index.
 	 */
-	public static int index(int code) {
-		return ((code - 1) >> 1);
+	public static int getIndex(int actionCode) {
+		return ((actionCode - 1) >> 1);
 	}
 
 	public static String toString(int code) {
 		if (code == ERROR)
 			return "ERROR";
 		else if (isShift(code))
-			return "SHIFT(" + index(code) + ")";
+			return "SHIFT(" + getIndex(code) + ")";
 		else
-			return "REDUCE(" + index(code) + ")";
+			return "REDUCE(" + getIndex(code) + ")";
 	}
 
 	/**
@@ -172,9 +169,6 @@ public class ParseActionTable {
 		return compressed;
 	}
 
-	/* . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . */
-
-	/** Convert to a string. */
 	public String toString() {
 		StringBuilder result = new StringBuilder();
 		int cnt;
@@ -206,7 +200,5 @@ public class ParseActionTable {
 
 		return result.toString();
 	}
-
-	/*-----------------------------------------------------------*/
 
 }

@@ -1,6 +1,7 @@
 package com.github.jhoenicke.javacup;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Stack;
 
 /**
@@ -14,11 +15,16 @@ import java.util.Stack;
  *
  */
 public class Lookaheads extends TerminalSet {
-	private ArrayList<Lookaheads> _listeners;
+	
+	private List<Lookaheads> listeners = null;
 
 	public Lookaheads(TerminalSet t) {
 		super(t);
-		_listeners = new ArrayList<Lookaheads>();
+	}
+
+	public List<Lookaheads> getListeners() {
+		if (listeners == null) listeners = new ArrayList<>();
+		return listeners;
 	}
 
 	/**
@@ -27,11 +33,11 @@ public class Lookaheads extends TerminalSet {
 	 * 
 	 * @param child the lookaheads object that is dependent on this.
 	 */
-	public void add_listener(Lookaheads child) {
-		_listeners.add(child);
+	public void addListener(Lookaheads child) {
+		getListeners().add(child);
 	}
 
-	private boolean add_without_prop(TerminalSet new_lookaheads) {
+	private boolean addWithoutPropagation(TerminalSet new_lookaheads) {
 		return super.add(new_lookaheads);
 	}
 
@@ -39,18 +45,18 @@ public class Lookaheads extends TerminalSet {
 	 * Adds new lookaheads. This will also propagate the lookaheads to all objects
 	 * added by add_propagation().
 	 * 
-	 * @param new_lookaheads A set of new lookahead symbols.
+	 * @param newLookaheads A set of new lookahead symbols.
 	 */
-	public boolean add(TerminalSet new_lookaheads) {
-		if (!super.add(new_lookaheads))
+	public boolean add(TerminalSet newLookaheads) {
+		if (!super.add(newLookaheads))
 			return false;
 
-		Stack<Lookaheads> work = new Stack<Lookaheads>();
-		work.addAll(_listeners);
+		Stack<Lookaheads> work = new Stack<>();
+		work.addAll(getListeners());
 		while (!work.isEmpty()) {
 			Lookaheads la = work.pop();
-			if (la.add_without_prop(new_lookaheads)) {
-				work.addAll(la._listeners);
+			if (la.addWithoutPropagation(newLookaheads)) {
+				work.addAll(la.getListeners());
 			}
 		}
 		return true;

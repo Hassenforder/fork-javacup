@@ -10,18 +10,18 @@ package com.github.jhoenicke.javacup;
 public class TerminalSet {
 	private final static int LOG_BITS_PER_UNIT = 6;
 	private final static int BITS_PER_UNIT = 64;
-	private long[] _elements;
-	private Grammar _grammar;
+	private long[] elements;
+	private Grammar grammar;
 
 	/*-----------------------------------------------------------*/
 	/*--- Constructor(s) ----------------------------------------*/
 	/*-----------------------------------------------------------*/
 
 	/** Constructor for an empty set. */
-	public TerminalSet(Grammar g) {
+	public TerminalSet(Grammar grammar) {
 		/* allocate the bitset at what is probably the right size */
-		_grammar = g;
-		_elements = new long[((g.num_terminals() - 1) >>> LOG_BITS_PER_UNIT) + 1];
+		this.grammar = grammar;
+		this.elements = new long[((grammar.getTerminalCount() - 1) >>> LOG_BITS_PER_UNIT) + 1];
 	}
 
 	/* . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . */
@@ -32,8 +32,8 @@ public class TerminalSet {
 	 * @param other the set we are cloning from.
 	 */
 	public TerminalSet(TerminalSet other) {
-		this(other._grammar);
-		_elements = other._elements.clone();
+		this(other.grammar);
+		elements = other.elements.clone();
 	}
 
 	/*-----------------------------------------------------------*/
@@ -42,8 +42,8 @@ public class TerminalSet {
 
 	/** Determine if the set is empty. */
 	public boolean empty() {
-		for (int i = 0; i < _elements.length; i++)
-			if (_elements[i] != 0)
+		for (int i = 0; i < elements.length; i++)
+			if (elements[i] != 0)
 				return false;
 		return true;
 	}
@@ -56,7 +56,7 @@ public class TerminalSet {
 	 * @param sym the terminal symbol we are looking for.
 	 */
 	public boolean contains(Terminal sym) {
-		return contains(sym.index());
+		return contains(sym.getIndex());
 	}
 
 	/* . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . */
@@ -69,7 +69,7 @@ public class TerminalSet {
 	public boolean contains(int indx) {
 		int idx = indx >> LOG_BITS_PER_UNIT;
 		long mask = (1L << (indx & (BITS_PER_UNIT - 1)));
-		return (_elements[idx] & mask) != 0;
+		return (elements[idx] & mask) != 0;
 	}
 
 	/* . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . */
@@ -80,9 +80,9 @@ public class TerminalSet {
 	 * @param other the set we are testing against.
 	 */
 	public boolean is_subset_of(TerminalSet other) {
-		assert (other._elements.length == _elements.length);
-		for (int i = 0; i < _elements.length; i++)
-			if ((_elements[i] & ~other._elements[i]) != 0)
+		assert (other.elements.length == elements.length);
+		for (int i = 0; i < elements.length; i++)
+			if ((elements[i] & ~other.elements[i]) != 0)
 				return false;
 		return true;
 	}
@@ -96,11 +96,11 @@ public class TerminalSet {
 	 * @return true if this changes the set.
 	 */
 	public boolean add(Terminal sym) {
-		int indx = sym.index();
+		int indx = sym.getIndex();
 		int idx = indx >> LOG_BITS_PER_UNIT;
 		long mask = (1L << (indx & (BITS_PER_UNIT - 1)));
-		boolean result = (_elements[idx] & mask) == 0;
-		_elements[idx] |= mask;
+		boolean result = (elements[idx] & mask) == 0;
+		elements[idx] |= mask;
 		return result;
 	}
 
@@ -112,10 +112,10 @@ public class TerminalSet {
 	 * @param sym the terminal being removed.
 	 */
 	public void remove(Terminal sym) {
-		int indx = sym.index();
+		int indx = sym.getIndex();
 		int idx = indx >> LOG_BITS_PER_UNIT;
 		long mask = (1L << (indx & (BITS_PER_UNIT - 1)));
-		_elements[idx] &= ~mask;
+		elements[idx] &= ~mask;
 	}
 
 	/* . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . */
@@ -127,12 +127,12 @@ public class TerminalSet {
 	 * @return true if this changes the set.
 	 */
 	public boolean add(TerminalSet other) {
-		assert (other._elements.length == _elements.length);
+		assert (other.elements.length == elements.length);
 		boolean changed = false;
-		for (int i = 0; i < _elements.length; i++) {
-			if ((~_elements[i] & other._elements[i]) != 0)
+		for (int i = 0; i < elements.length; i++) {
+			if ((~elements[i] & other.elements[i]) != 0)
 				changed = true;
-			_elements[i] |= other._elements[i];
+			elements[i] |= other.elements[i];
 		}
 		return changed;
 	}
@@ -145,9 +145,9 @@ public class TerminalSet {
 	 * @param other the other set in question.
 	 */
 	public boolean intersects(TerminalSet other) {
-		assert (other._elements.length == _elements.length);
-		for (int i = 0; i < _elements.length; i++) {
-			if ((_elements[i] & other._elements[i]) != 0)
+		assert (other.elements.length == elements.length);
+		for (int i = 0; i < elements.length; i++) {
+			if ((elements[i] & other.elements[i]) != 0)
 				return true;
 		}
 		return false;
@@ -157,9 +157,9 @@ public class TerminalSet {
 
 	/** Equality comparison. */
 	public boolean equals(TerminalSet other) {
-		assert (other._elements.length == _elements.length);
-		for (int i = 0; i < _elements.length; i++) {
-			if (_elements[i] != other._elements[i])
+		assert (other.elements.length == elements.length);
+		for (int i = 0; i < elements.length; i++) {
+			if (elements[i] != other.elements[i])
 				return false;
 		}
 		return true;
@@ -178,8 +178,8 @@ public class TerminalSet {
 	@Override
 	public int hashCode() {
 		int hash = 0;
-		for (int i = 0; i < _elements.length; i++)
-			hash = 13 * hash + 157 * (int) (_elements[i] >> 16) + (int) _elements[i];
+		for (int i = 0; i < elements.length; i++)
+			hash = 13 * hash + 157 * (int) (elements[i] >> 16) + (int) elements[i];
 		return hash;
 	}
 
@@ -189,9 +189,9 @@ public class TerminalSet {
 	public String toString() {
 		StringBuilder result = new StringBuilder("{");
 		String comma = "";
-		for (int t = 0; t < _grammar.num_terminals(); t++) {
+		for (int t = 0; t < grammar.getTerminalCount(); t++) {
 			if (contains(t)) {
-				result.append(comma).append(_grammar.get_terminal(t));
+				result.append(comma).append(grammar.getTerminalAt(t));
 				comma = ", ";
 			}
 		}

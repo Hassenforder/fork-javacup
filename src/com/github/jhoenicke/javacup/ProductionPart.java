@@ -10,11 +10,8 @@ package com.github.jhoenicke.javacup;
  */
 public abstract class ProductionPart {
 
-	/*-----------------------------------------------------------*/
-	/*--- Constructor(s) ----------------------------------------*/
-	/*-----------------------------------------------------------*/
-
 	/** Simple constructor. */
 	public ProductionPart() {
 	}
+	
 }

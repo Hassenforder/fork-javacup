@@ -123,7 +123,7 @@ action code {:
   int _cur_prec = 0;
 
   /** Current precedence side */
-  int _cur_side = Assoc.no_prec;
+  int _cur_side = Assoc.NOPREC;
 
   /** update the precedences we are declaring */
   protected void update_precedence(int p)
@@ -132,7 +132,7 @@ action code {:
       _cur_prec++;
     }
   
-  private Terminal get_term(com.github.jhoenicke.javacup.runtime.Symbol location, String id)
+  private Terminal getTerminal(com.github.jhoenicke.javacup.runtime.Symbol location, String id)
     {
       GrammarSymbol sym = symbols.get(id);
 
@@ -146,7 +146,7 @@ action code {:
       return (Terminal)sym;
     }
   
-  private NonTerminal get_nonterm(com.github.jhoenicke.javacup.runtime.Symbol location, String id)
+  private NonTerminal getNonterminal(com.github.jhoenicke.javacup.runtime.Symbol location, String id)
     {
       GrammarSymbol sym = symbols.get(id);
 
@@ -396,9 +396,9 @@ new_symbol_id ::=
 	      /* build the symbol and put it in the symbol table */
 	      GrammarSymbol sym;
 	      if (_cur_is_nonterm) 
-	      	sym = grammar.add_non_terminal(sym_id, _cur_symbol_type);
+	      	sym = grammar.addNonterminal(sym_id, _cur_symbol_type);
 	      else
-	      	sym = grammar.add_terminal(sym_id, _cur_symbol_type);
+	      	sym = grammar.addTerminal(sym_id, _cur_symbol_type);
 	      symbols.put(sym_id, sym);
 	    }
 	:}
@@ -408,9 +408,9 @@ new_symbol_id ::=
 
 preced ::= PRECEDENCE assoc precterminal_list SEMI;
 
-assoc ::= LEFT     {: update_precedence(Assoc.left); :}
-        | RIGHT    {: update_precedence(Assoc.right); :}
-        | NONASSOC {: update_precedence(Assoc.nonassoc); :}
+assoc ::= LEFT     {: update_precedence(Assoc.LEFT); :}
+        | RIGHT    {: update_precedence(Assoc.RIGHT); :}
+        | NONASSOC {: update_precedence(Assoc.NONASSOC); :}
         ;
       
 /*. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . */ 
@@ -422,16 +422,16 @@ precterminal_list ::= precterminal_list COMMA precterminal_id
 
 precterminal_id ::= symbol_id:term
 	{:	
-	  get_term(term$, term).set_precedence(_cur_side, _cur_prec);
+	  getTerminal(term$, term).setPrecedence(_cur_side, _cur_prec);
 	:};
 	  
 /*. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . */ 
 
 start_spec ::= 
 	START WITH symbol_id:start_name SEMI 
-	{: NonTerminal nt = get_nonterm(start_name$, start_name);
+	{: NonTerminal nt = getNonterminal(start_name$, start_name);
 	   if (nt != null) 
-	     grammar.set_start_symbol(nt); 
+	     grammar.setStartSymbol(nt); 
 	:}
 	|
 	/* empty */
@@ -443,7 +443,7 @@ production ::=
 	symbol_id:lhs_id
 	{:
 	  /* lookup the lhs nt */
-	  lhs_nt = get_nonterm(lhs_id$, lhs_id);
+	  lhs_nt = getNonterminal(lhs_id$, lhs_id);
 	:}
 	COLON_COLON_EQUALS
 	rhs_list
@@ -459,7 +459,7 @@ rhs_list ::= rhs_list BAR rhs | rhs;
 /*. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . */
 
 prod_precedence ::= PERCENT_PREC symbol_id:term
-	{: RESULT = get_term(term$, term); :}
+	{: RESULT = getTerminal(term$, term); :}
 	| /* empty */ {: RESULT = null; :};
 	      
 
@@ -472,7 +472,7 @@ rhs ::=
 	      ArrayList<ProductionPart> rhs_list = 
 	      	new ArrayList<ProductionPart>(rhs.length);
 	      rhs_list.addAll(Arrays.asList(rhs));
-	      grammar.build_production(lhs_nt, rhs_list, (Terminal) precsym);
+	      grammar.buildProduction(lhs_nt, rhs_list, (Terminal) precsym);
 	    }
 	:}
 	;
@@ -497,13 +497,13 @@ prod_part ::=
 
 wild_symbol_id ::=
     wild_symbol_id:s STAR 
-    {: RESULT = grammar.star_symbol(s); :} 
+    {: RESULT = grammar.getStarSymbol(s); :} 
     |
     wild_symbol_id:s PLUS 
-    {: RESULT = grammar.plus_symbol(s); :} 
+    {: RESULT = grammar.getPlusSymbol(s); :} 
     |
     wild_symbol_id:s QUESTION
-    {: RESULT = grammar.opt_symbol(s); :} 
+    {: RESULT = grammar.getOptSymbol(s); :} 
     |
     symbol_id : symid
     {: /* try to look up the id */

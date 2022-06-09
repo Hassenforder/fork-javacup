@@ -3,6 +3,7 @@ package com.github.jhoenicke.javacup;
 import java.util.BitSet;
 
 public class CombRow implements Comparable<CombRow> {
+	
 	public final int index;
 	public final int[] comb;
 	public final int width;

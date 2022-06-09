@@ -11,51 +11,48 @@ package com.github.jhoenicke.javacup;
 public class SymbolPart extends ProductionPart {
 
 	/** The symbol that this part is made up of. */
-	public final GrammarSymbol the_symbol;
+	private final GrammarSymbol symbol;
 
 	/**
 	 * Optional label for referring to the part within an action (null for no
 	 * label).
 	 */
-	public final String label;
-
-	/*-----------------------------------------------------------*/
-	/*--- Constructor(s) ----------------------------------------*/
-	/*-----------------------------------------------------------*/
+	private final String label;
 
 	/**
 	 * Full constructor.
 	 * 
-	 * @param sym the symbol that this part is made up of.
-	 * @param lab an optional label string for the part.
+	 * @param symbol the symbol that this part is made up of.
+	 * @param label an optional label string for the part.
 	 */
-	public SymbolPart(GrammarSymbol sym, String lab) {
-		assert sym != null : "Attempt to construct a symbol_part with a null symbol";
-		the_symbol = sym;
-		label = lab;
+	public SymbolPart(GrammarSymbol symbol, String label) {
+		assert symbol != null : "Attempt to construct a symbol_part with a null symbol";
+		this.symbol = symbol;
+		this.label = label;
 	}
-
-	/* . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . */
 
 	/**
 	 * Constructor with no label.
 	 * 
 	 * @param sym the symbol that this part is made up of.
 	 */
-	public SymbolPart(GrammarSymbol sym) {
-		this(sym, null);
+	public SymbolPart(GrammarSymbol symbol) {
+		this(symbol, null);
 	}
 
-	/* . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . */
+	public GrammarSymbol getSymbol() {
+		return symbol;
+	}
 
-	/** Convert to a string. */
+	public String getLabel() {
+		return label;
+	}
+
 	public String toString() {
 		if (label == null)
-			return the_symbol.name();
+			return symbol.getName();
 		else
-			return the_symbol.name() + ":" + label;
+			return symbol.getName() + ":" + label;
 	}
-
-	/*-----------------------------------------------------------*/
 
 }

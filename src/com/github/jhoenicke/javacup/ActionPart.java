@@ -14,52 +14,34 @@ package com.github.jhoenicke.javacup;
 
 public class ActionPart extends ProductionPart {
 
-	/*-----------------------------------------------------------*/
-	/*--- Constructors ------------------------------------------*/
-	/*-----------------------------------------------------------*/
+	/** String containing code for the action in question. */
+	private String code;
 
 	/**
 	 * Simple constructor.
 	 * 
 	 * @param code_str string containing the actual user code.
 	 */
-	public ActionPart(String code_str) {
-		_code_string = code_str;
+	public ActionPart(String code) {
+		this.code = code;
 	}
-
-	/*-----------------------------------------------------------*/
-	/*--- (Access to) Instance Variables ------------------------*/
-	/*-----------------------------------------------------------*/
 
 	/** String containing code for the action in question. */
-	protected String _code_string;
-
-	/* . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . */
-
-	/** String containing code for the action in question. */
-	public String code_string() {
-		return _code_string;
+	public String getCode() {
+		return code;
 	}
 
-	public void add_code_string(String more_action) {
-		_code_string += more_action;
+	public void addCode(String moreCode) {
+		code += moreCode;
 	}
-
-	/* . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . */
 
 	/** Set the code string. */
-	public void set_code_string(String new_str) {
-		_code_string = new_str;
+	public void setCode(String code) {
+		this.code = code;
 	}
 
-	/*-----------------------------------------------------------*/
-	/*--- General Methods ---------------------------------------*/
-	/*-----------------------------------------------------------*/
-
-	/** Convert to a string. */
 	public String toString() {
-		return super.toString() + "{" + code_string() + "}";
+		return super.toString() + "{" + getCode() + "}";
 	}
 
-	/*-----------------------------------------------------------*/
 }

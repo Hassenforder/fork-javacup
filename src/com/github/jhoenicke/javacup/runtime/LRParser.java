@@ -445,7 +445,7 @@ public abstract class LRParser {
   /** Do debug output for a reduce. 
    *
    * @param prod_num  the production we are reducing with.
-   * @param nt_num    the index of the LHS non terminal.
+   * @param nt        the nonterminal to display.
    * @param rhs_size  the size of the RHS.
    */
   public void debug_reduce(int prod_num, Symbol nt, int rhs_size)

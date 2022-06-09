@@ -185,7 +185,7 @@ public class Emit {
 		for (Terminal term : grammar.terminals()) {
 
 			/* output a constant decl for the terminal */
-			out.println("  public static final int " + term.name() + " = " + term.index() + ";");
+			out.println("  public static final int " + term.getName() + " = " + term.getIndex() + ";");
 		}
 
 		/* do the non terminals if they want them (parser doesn't need them) */
@@ -200,7 +200,7 @@ public class Emit {
 				// ****
 
 				/* output a constant decl for the terminal */
-				out.println("  static final int " + nt.name() + " = " + nt.index() + ";");
+				out.println("  static final int " + nt.getName() + " = " + nt.getIndex() + ";");
 			}
 		}
 
@@ -212,14 +212,14 @@ public class Emit {
 	}
 
 	private void emit_action(PrintWriter out, Grammar grammar, Production prod, Options options) {
-		boolean is_star_action = prod.action() != null && prod.action().code_string().startsWith("CUP$STAR");
+		boolean is_star_action = prod.getAction() != null && prod.getAction().getCode().startsWith("CUP$STAR");
 		String result = "";
-		if (prod.lhs().stack_type() != null && !is_star_action) {
+		if (prod.lhs().getType() != null && !is_star_action) {
 			int lastResult = prod.getIndexOfIntermediateResult();
 			String init_result = "";
 			if (lastResult != -1) {
-				init_result = " = (" + prod.lhs().stack_type() + ") "
-						+ stackelem(prod.rhs_stackdepth() - lastResult, options.opt_java15) + ".value";
+				init_result = " = (" + prod.lhs().getType() + ") "
+						+ stackelem(prod.getRhsStackDepth() - lastResult, options.opt_java15) + ".value";
 			} else if (prod instanceof ActionProduction) {
 				init_result = " = null";
 			}
@@ -228,14 +228,14 @@ public class Emit {
 			 * make the variable RESULT which will point to the new Symbol (see below) and
 			 * be changed by action code 6/13/96 frankf
 			 */
-			out.println("              " + prod.lhs().stack_type() + " RESULT" + init_result + ";");
+			out.println("              " + prod.lhs().getType() + " RESULT" + init_result + ";");
 
 			result = ", RESULT";
 		}
 
 		Production baseprod;
 		if (prod instanceof ActionProduction)
-			baseprod = ((ActionProduction) prod).base_production();
+			baseprod = ((ActionProduction) prod).getBaseProduction();
 		else
 			baseprod = prod;
 		String leftsym = null, rightsym = null;
@@ -245,25 +245,25 @@ public class Emit {
 		 */
 		if (options.after_reduce_code != null)
 			out.println("              " + RUNTIME_PACKAGE + ".Symbol[] " + pre("symbols_array") + " = new "
-					+ RUNTIME_PACKAGE + ".Symbol[" + prod.rhs_stackdepth() + "];");
-		for (int i = prod.rhs_stackdepth() - 1; i >= 0; i--) {
-			SymbolPart symbol = baseprod.rhs(i);
-			String label = symbol.label;
-			String symtype = symbol.the_symbol.stack_type();
+					+ RUNTIME_PACKAGE + ".Symbol[" + prod.getRhsStackDepth() + "];");
+		for (int i = prod.getRhsStackDepth() - 1; i >= 0; i--) {
+			SymbolPart symbol = baseprod.getRhsAt(i);
+			String label = symbol.getLabel();
+			String symtype = symbol.getSymbol().getType();
 			boolean is_wildcard = !is_star_action && symtype != null
-					&& (symbol.the_symbol.name().endsWith("*") || symbol.the_symbol.name().endsWith("+"));
+					&& (symbol.getSymbol().getName().endsWith("*") || symbol.getSymbol().getName().endsWith("+"));
 			if (options.after_reduce_code != null) {
 				out.println("              " + pre("symbols_array") + "[" + i + "] = "
-						+ stackelem(prod.rhs_stackdepth() - i, options.opt_java15) + ";");
+						+ stackelem(prod.getRhsStackDepth() - i, options.opt_java15) + ";");
 			}
 			if (label != null) {
 				if (i == 0)
 					leftsym = label + "$";
-				if (i == prod.rhs_stackdepth() - 1)
+				if (i == prod.getRhsStackDepth() - 1)
 					rightsym = label + "$";
 
 				out.println("              " + RUNTIME_PACKAGE + ".Symbol " + label + "$ = "
-						+ stackelem(prod.rhs_stackdepth() - i, options.opt_java15) + ";");
+						+ stackelem(prod.getRhsStackDepth() - i, options.opt_java15) + ";");
 
 				/* Put in the left/right value labels */
 				if (options.opt_old_lr_values) {
@@ -297,23 +297,23 @@ public class Emit {
 		}
 
 		/* if there is an action string, emit it */
-		if (prod.action() != null) {
-			if (prod.action().code_string().startsWith("CUP$STAR")) {
-				assert (prod.lhs().stack_type() != null);
-				String symtype = prod.lhs().stack_type();
+		if (prod.getAction() != null) {
+			if (prod.getAction().getCode().startsWith("CUP$STAR")) {
+				assert (prod.lhs().getType() != null);
+				String symtype = prod.lhs().getType();
 				String basetype = symtype.substring(0, symtype.length() - 2);
 				String listtype = "java.util.ArrayList";
 				if (options.opt_java15)
 					listtype += "<" + basetype + ">";
 
-				switch (prod.action().code_string().charAt(8)) {
+				switch (prod.getAction().getCode().charAt(8)) {
 				case '0':
 					result = ", new " + listtype + "()";
 					break;
 				case '1':
 					leftsym = rightsym = pre("0");
 					out.println("              " + RUNTIME_PACKAGE + ".Symbol " + rightsym + " = "
-							+ stackelem(prod.rhs_stackdepth(), options.opt_java15) + ";");
+							+ stackelem(prod.getRhsStackDepth(), options.opt_java15) + ";");
 					out.println("              " + listtype + " RESULT = new " + listtype + "();");
 					out.println("              " + "RESULT.add((" + basetype + ") " + rightsym + ".value);");
 					result = ", RESULT";
@@ -322,16 +322,16 @@ public class Emit {
 					leftsym = pre("0");
 					rightsym = pre("1");
 					out.println("              " + RUNTIME_PACKAGE + ".Symbol " + rightsym + " = "
-							+ stackelem(prod.rhs_stackdepth() - 1, options.opt_java15) + ";");
+							+ stackelem(prod.getRhsStackDepth() - 1, options.opt_java15) + ";");
 					out.println("              " + RUNTIME_PACKAGE + ".Symbol " + leftsym + " = "
-							+ stackelem(prod.rhs_stackdepth() - 0, options.opt_java15) + ";");
+							+ stackelem(prod.getRhsStackDepth() - 0, options.opt_java15) + ";");
 					out.println("              " + listtype + " RESULT = (" + listtype + ") " + leftsym + ".value;");
 					out.println("              " + "RESULT.add((" + basetype + ") " + rightsym + ".value);");
 					result = ", RESULT";
 					break;
 				}
 			} else {
-				out.println(prod.action().code_string());
+				out.println(prod.getAction().getCode());
 			}
 		}
 
@@ -346,7 +346,7 @@ public class Emit {
 		 */
 		String leftright = "";
 		if (options.opt_lr_values) {
-			if (prod.rhs_length() <= 1 && rightsym == null) {
+			if (prod.getRhsSize() <= 1 && rightsym == null) {
 				leftsym = rightsym = pre("sym");
 				out.println("              " + RUNTIME_PACKAGE + ".Symbol " + rightsym + " = "
 						+ stackelem(1, options.opt_java15) + ";");
@@ -354,7 +354,7 @@ public class Emit {
 				if (rightsym == null)
 					rightsym = stackelem(1, options.opt_java15);
 				if (leftsym == null)
-					leftsym = stackelem(prod.rhs_stackdepth(), options.opt_java15);
+					leftsym = stackelem(prod.getRhsStackDepth(), options.opt_java15);
 			}
 			leftright = ", " + leftsym + ", " + rightsym;
 		}
@@ -362,8 +362,8 @@ public class Emit {
 		if (options.after_reduce_code != null)
 			out.println("              " + pre("after_reduce") + "(RESULT, " + pre("symbols_array") + ");");
 		/* code to return lhs symbol */
-		out.println("              return parser.getSymbolFactory().newSymbol(" + "\"" + prod.lhs().name() + "\", "
-				+ prod.lhs().index() + leftright + result + ");");
+		out.println("              return parser.getSymbolFactory().newSymbol(" + "\"" + prod.lhs().getName() + "\", "
+				+ prod.lhs().getIndex() + leftright + result + ");");
 	}
 
 	/* . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . */
@@ -426,11 +426,11 @@ public class Emit {
 		/* emit action code for each production as a separate case */
 		for (Production prod : grammar.actions()) {
 			/* case label */
-			for (Production p2 : prod.lhs().productions()) {
-				if (p2.action_index() == prod.action_index())
+			for (Production p2 : prod.lhs().getProductions()) {
+				if (p2.getActionIndex() == prod.getActionIndex())
 					out.println("          // " + p2.toString());
 			}
-			out.println("          case " + prod.action_index() + ":");
+			out.println("          case " + prod.getActionIndex() + ":");
 			/* give them their own block to work in */
 			out.println("            {");
 
@@ -479,10 +479,10 @@ public class Emit {
 	private String do_production_table(Grammar grammar) {
 		timer.pushTimer();
 
-		short[] prod_table = new short[2 * grammar.num_actions()];
+		short[] prod_table = new short[2 * grammar.gatActionCount()];
 		for (Production prod : grammar.actions()) {
-			prod_table[2 * prod.action_index() + 0] = (short) prod.lhs().index();
-			prod_table[2 * prod.action_index() + 1] = (short) prod.rhs_length();
+			prod_table[2 * prod.getActionIndex() + 0] = (short) prod.lhs().getIndex();
+			prod_table[2 * prod.getActionIndex() + 1] = (short) prod.getRhsSize();
 		}
 		String result = do_array_as_string(prod_table);
 		timer.popTimer(Timer.TIMESTAMP.production_table_time);
@@ -501,8 +501,8 @@ public class Emit {
 	private String do_action_table(Grammar grammar) {
 		timer.pushTimer();
 
-		ParseActionTable act_tab = grammar.action_table();
-		int[] base_tab = new int[act_tab.table.length];
+		ParseActionTable act_tab = grammar.getActionTable();
+		int[] base_tab = new int[act_tab.getTable().length];
 		short[] action_tab = act_tab.compress(base_tab);
 		String result = do_array_as_string(base_tab) + do_array_as_string(action_tab);
 		timer.popTimer(Timer.TIMESTAMP.action_table_time);
@@ -519,7 +519,7 @@ public class Emit {
 	private String do_reduce_table(Grammar grammar) {
 		timer.pushTimer();
 
-		ParseReduceTable red_tab = grammar.reduce_table();
+		ParseReduceTable red_tab = grammar.getReduceTable();
 		String result = do_array_as_string(red_tab.compress());
 		timer.popTimer(Timer.TIMESTAMP.goto_table_time);
 		return result;
@@ -594,8 +594,8 @@ public class Emit {
 	 * Emit the parser subclass with embedded tables.
 	 * 
 	 * @param out              stream to produce output on.
-	 * @param action_table     internal representation of the action table.
-	 * @param reduce_table     internal representation of the reduce-goto table.
+	 * @param actionTable     internal representation of the action table.
+	 * @param reduceTable     internal representation of the reduce-goto table.
 	 * @param start_st         start state of the parse machine.
 	 * @param start_prod       start production of the grammar.
 	 * @param compact_reduces  do we use most frequent reduce as default?
@@ -724,13 +724,13 @@ public class Emit {
 	}
 
 	private void dump_tables(PrintWriter dump_file, Grammar grammar) {
-		dump_file.println(grammar.action_table);
-		dump_file.println(grammar.reduce_table);
+		dump_file.println(grammar.getActionTable());
+		dump_file.println(grammar.getReduceTable());
 	}
 
 	private void dump_machine(PrintWriter dump_file, Grammar grammar) {
 		dump_file.println("===== Viable Prefix Recognizer =====");
-		for (LalrState st : grammar.lalr_states()) {
+		for (LalrState st : grammar.getLalrStates()) {
 			dump_file.println(st);
 			dump_file.println("-------------------");
 		}
@@ -740,7 +740,7 @@ public class Emit {
 		dump_file.println("===== Terminals =====");
 		int cnt = 0;
 		for (Terminal t : grammar.terminals()) {
-			dump_file.print("[" + t.index() + "]" + t.name() + " ");
+			dump_file.print("[" + t.getIndex() + "]" + t.getName() + " ");
 			if ((++cnt) % 5 == 0)
 				dump_file.println();
 		}
@@ -750,7 +750,7 @@ public class Emit {
 		dump_file.println("===== Non terminals =====");
 		cnt = 0;
 		for (NonTerminal nt : grammar.non_terminals()) {
-			dump_file.print("[" + nt.index() + "]" + nt.name() + " ");
+			dump_file.print("[" + nt.getIndex() + "]" + nt.getName() + " ");
 			if ((++cnt) % 5 == 0)
 				dump_file.println();
 		}

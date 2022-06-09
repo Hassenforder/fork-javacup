@@ -11,98 +11,74 @@ package com.github.jhoenicke.javacup;
  */
 public class Terminal extends GrammarSymbol {
 
-	/*-----------------------------------------------------------*/
-	/*--- Constructor(s) ----------------------------------------*/
-	/*-----------------------------------------------------------*/
+	private int level;
+	private int associativity;
 
 	/**
 	 * Full constructor.
 	 * 
-	 * @param nm the name of the terminal.
-	 * @param tp the type of the terminal.
+	 * @param name the name of the terminal.
+	 * @param type the type of the terminal.
+	 * @param associativity the associativity of the terminal.
+	 * @param level the level of the priority for the terminal.
+	 * @param index the index of the terminal.
 	 */
-	public Terminal(String nm, String tp, int precedence_side, int precedence_num, int index) {
-		/* superclass does most of the work */
-		super(nm, tp, index);
-
-		/* set the precedence */
-		_precedence_num = precedence_num;
-		_precedence_side = precedence_side;
+	public Terminal(String name, String type, int associativity, int level, int index) {
+		super(name, type, index);
+		this.level = level;
+		this.associativity = associativity;
 	}
 
-	/* . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . */
-
 	/**
-	 * Constructor for non-precedented terminal
+	 * Constructor for terminal without precedence
+     *
+	 * @param name the name of the terminal.
+	 * @param type the type of the terminal.
+	 * @param index the index of the terminal.
 	 */
 
-	public Terminal(String nm, String tp, int index) {
-		this(nm, tp, Assoc.no_prec, -1, index);
+	public Terminal(String name, String type, int index) {
+		this(name, type, Assoc.NOPREC, -1, index);
 	}
 
-	/* . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . */
-
 	/**
-	 * Constructor with default type.
+	 * Constructor with type less terminal.
 	 * 
-	 * @param nm the name of the terminal.
+	 * @param name the name of the terminal.
+	 * @param index the index of the terminal.
 	 */
-	public Terminal(String nm, int index) {
-		this(nm, null, index);
+	public Terminal(String name, int index) {
+		this(name, null, index);
 	}
-
-	/*-----------------------------------------------------------*/
-	/*-------------------  Class Variables  ---------------------*/
-	/*-----------------------------------------------------------*/
-
-	private int _precedence_num;
-	private int _precedence_side;
-
-	/*-----------------------------------------------------------*/
-	/*--- (Access to) Static (Class) Variables ------------------*/
-	/*-----------------------------------------------------------*/
 
 	/** Special terminal for end of input. */
 	public static Terminal EOF = new Terminal("EOF", 1);
 
-	/* . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . */
-
 	/** special terminal used for error recovery */
 	public static Terminal error = new Terminal("error", 0);
 
-	/*-----------------------------------------------------------*/
-	/*--- General Methods ---------------------------------------*/
-	/*-----------------------------------------------------------*/
-
 	/** Report this symbol as not being a non-terminal. */
-	public boolean is_non_term() {
+	public boolean isNonTerm() {
 		return false;
 	}
 
-	/* . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . */
-
-	/** Convert to a string. */
-	public String toString() {
-		return super.toString() + "[" + index() + "]";
+	/** get the precedence level of a terminal */
+	public int getLevel() {
+		return level;
 	}
 
-	/* . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . */
-
-	/** get the precedence of a terminal */
-	public int precedence_num() {
-		return _precedence_num;
-	}
-
-	public int precedence_side() {
-		return _precedence_side;
+	public int getAssociativity() {
+		return associativity;
 	}
 
 	/** set the precedence of a terminal */
-	public void set_precedence(int p, int new_prec) {
-		_precedence_side = p;
-		_precedence_num = new_prec;
+	public void setPrecedence(int associativity, int level) {
+		this.associativity = associativity;
+		this.level = level;
 	}
 
-	/*-----------------------------------------------------------*/
+	public String toString() {
+		return super.toString() + "[" + getIndex() + "]";
+	}
 
 }

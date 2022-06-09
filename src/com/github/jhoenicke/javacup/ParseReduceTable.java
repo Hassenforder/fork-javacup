@@ -15,11 +15,11 @@ import java.util.TreeSet;
 public class ParseReduceTable {
 
 	/** Actual parse_reduce matrix, indexed by state and non-terminal. */
-	public LalrState[][] table;
+	private LalrState[][] table;
 
-	/*-----------------------------------------------------------*/
-	/*--- Constructor(s) ----------------------------------------*/
-	/*-----------------------------------------------------------*/
+	/** How many rows/states in the machine/table. */
+	private int stateCount;
+	private int nonterminalCount;
 
 	/**
 	 * Simple constructor. Note: all terminals, non-terminals, and productions must
@@ -28,31 +28,21 @@ public class ParseReduceTable {
 	 */
 	public ParseReduceTable(Grammar grammar) {
 		/* determine how many states we are working with */
-		_num_states = grammar.lalr_states().size();
-		_num_nonterm = grammar.num_non_terminals();
+		stateCount = grammar.getLalrStates().size();
+		nonterminalCount = grammar.getNonterminalCount();
 
 		/* allocate the array and fill it in with empty rows */
-		table = new LalrState[_num_states][_num_nonterm];
+		table = new LalrState[stateCount][nonterminalCount];
 	}
 
-	/*-----------------------------------------------------------*/
-	/*--- (Access to) Instance Variables ------------------------*/
-	/*-----------------------------------------------------------*/
-
-	/** How many rows/states in the machine/table. */
-	protected int _num_states;
-	private int _num_nonterm;
-
-	/** How many rows/states in the machine/table. */
-	public int num_states() {
-		return _num_states;
+	public LalrState[][] getTable() {
+		return table;
 	}
 
-	/* . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . */
-
-	/*-----------------------------------------------------------*/
-	/*--- General Methods ---------------------------------------*/
-	/*-----------------------------------------------------------*/
+	/** How many rows/states in the machine/table. */
+	public int getStateCount() {
+		return stateCount;
+	}
 
 	/**
 	 * Compress the reduce table into it's runtime form. This returns an array
@@ -67,9 +57,9 @@ public class ParseReduceTable {
 	public short[] compress() {
 		BitSet used = new BitSet();
 		TreeSet<CombRow> rows = new TreeSet<CombRow>();
-		for (int i = 0; i < _num_states; i++) {
+		for (int i = 0; i < stateCount; i++) {
 			int len = 0;
-			for (int j = 0; j < _num_nonterm; j++)
+			for (int j = 0; j < nonterminalCount; j++)
 				if (table[i][j] != null)
 					len++;
 			if (len == 0)
@@ -78,7 +68,7 @@ public class ParseReduceTable {
 			used.set(i);
 			int[] rowidx = new int[len];
 			len = 0;
-			for (int j = 0; j < _num_nonterm; j++)
+			for (int j = 0; j < nonterminalCount; j++)
 				if (table[i][j] != null)
 					rowidx[len++] = j;
 			CombRow row = new CombRow(i, rowidx);
@@ -107,17 +97,16 @@ public class ParseReduceTable {
 		return compressed;
 	}
 
-	/** Convert to a string. */
 	public String toString() {
 		StringBuilder result = new StringBuilder();
 		LalrState goto_st;
 		int cnt;
 
 		result.append("-------- REDUCE_TABLE --------\n");
-		for (int row = 0; row < num_states(); row++) {
+		for (int row = 0; row < getStateCount(); row++) {
 			result.append("From state #").append(row).append("\n");
 			cnt = 0;
-			for (int col = 0; col < _num_nonterm; col++) {
+			for (int col = 0; col < nonterminalCount; col++) {
 				/* pull out the table entry */
 				goto_st = table[row][col];
 
@@ -142,7 +131,5 @@ public class ParseReduceTable {
 
 		return result.toString();
 	}
-
-	/*-----------------------------------------------------------*/
 
 }

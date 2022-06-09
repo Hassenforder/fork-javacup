@@ -15,107 +15,115 @@ package com.github.jhoenicke.javacup;
  * @author Frank Flannery
  */
 public abstract class GrammarSymbol implements Comparable<GrammarSymbol> {
-	/*-----------------------------------------------------------*/
-	/*--- Constructor(s) ----------------------------------------*/
-	/*-----------------------------------------------------------*/
+
+	/** String for the human readable name of the symbol. */
+	private String name;
+
+	/** String for the type of object used for the symbol on the parse stack. */
+	private String type;
+
+	/**
+	 * Index of this symbol (terminal or non terminal) in the parse tables. Note:
+	 * indexes are unique among terminals and unique among non terminals, however, a
+	 * terminal may have the same index as a non-terminal, etc.
+	 */
+	private int index;
+
+	/** Count of how many times the symbol appears in productions. */
+	private int useCount;
+
+	/**
+	 * EBNF symbols * + ?
+	 */
+	private NonTerminal starSymbol, plusSymbol, optSymbol;
 
 	/**
 	 * Full constructor.
 	 * 
-	 * @param nm    the name of the symbol.
-	 * @param tp    a string with the type name.
+	 * @param name    the name of the symbol.
+	 * @param type    a string with the type name.
 	 * @param index the index of the symbol.
 	 */
-	public GrammarSymbol(String nm, String tp, int index) {
+	public GrammarSymbol(String name, String type, int index) {
 		/* sanity check */
-		if (nm == null)
-			nm = "";
+		if (name == null)
+			name = "";
 
-		_name = nm;
-		_stack_type = tp;
-		_index = index;
+		this.name = name;
+		this.type = type;
+		this.index = index;
+		this.useCount = 0;
 	}
-
-	/*-----------------------------------------------------------*/
-	/*--- (Access to) Instance Variables ------------------------*/
-	/*-----------------------------------------------------------*/
 
 	/** String for the human readable name of the symbol. */
-	protected String _name;
-
-	/** String for the human readable name of the symbol. */
-	public String name() {
-		return _name;
+	public String getName() {
+		return name;
 	}
 
-	/* . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . */
-
 	/** String for the type of object used for the symbol on the parse stack. */
-	protected String _stack_type;
-
-	/** String for the type of object used for the symbol on the parse stack. */
-	public String stack_type() {
-		return _stack_type;
+	public String getType() {
+		return type;
 	}
 
-	/* . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . */
-
 	/** Count of how many times the symbol appears in productions. */
-	protected int _use_count = 0;
-
-	/** Count of how many times the symbol appears in productions. */
-	public int use_count() {
-		return _use_count;
+	public int getUseCount() {
+		return useCount;
 	}
 
 	/** Increment the use count. */
-	public void note_use() {
-		_use_count++;
+	public void incrementUseCount() {
+		useCount++;
 	}
-
-	/* . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . */
 
 	/**
 	 * Index of this symbol (terminal or non terminal) in the parse tables. Note:
 	 * indexes are unique among terminals and unique among non terminals, however, a
 	 * terminal may have the same index as a non-terminal, etc.
 	 */
-	protected int _index;
-
-	/**
-	 * Index of this symbol (terminal or non terminal) in the parse tables. Note:
-	 * indexes are unique among terminals and unique among non terminals, however, a
-	 * terminal may have the same index as a non-terminal, etc.
-	 */
-	public int index() {
-		return _index;
+	public int getIndex() {
+		return index;
 	}
-
-	/* . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . */
 
 	/**
 	 * Indicate if this is a non-terminal. Here in the base class we don't know, so
 	 * this is abstract.
 	 */
-	public abstract boolean is_non_term();
+	public abstract boolean isNonTerm();
 
-	/* . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . */
+	public NonTerminal getStarSymbol() {
+		return starSymbol;
+	}
+
+	public NonTerminal getPlusSymbol() {
+		return plusSymbol;
+	}
+
+	public NonTerminal getOptSymbol() {
+		return optSymbol;
+	}
+
+	public void setStarSymbol(NonTerminal starSymbol) {
+		this.starSymbol = starSymbol;
+	}
+
+	public void setPlusSymbol(NonTerminal plusSymbol) {
+		this.plusSymbol = plusSymbol;
+	}
+
+	public void setOptSymbol(NonTerminal optSymbol) {
+		this.optSymbol = optSymbol;
+	}
 
 	public int compareTo(GrammarSymbol other) {
 		/* non terminals are larger than terminals */
-		if (is_non_term() != other.is_non_term())
-			return is_non_term() ? 1 : -1;
+		if (isNonTerm() != other.isNonTerm())
+			return isNonTerm() ? 1 : -1;
 		/* Otherwise compare by index */
-		return index() - other.index();
+		return getIndex() - other.getIndex();
 	}
 
-	/** Convert to a string. */
 	public String toString() {
-		return name();
+		return getName();
 	}
-
-	/*-----------------------------------------------------------*/
-
-	NonTerminal _star_symbol, _plus_symbol, _opt_symbol;
 
 }

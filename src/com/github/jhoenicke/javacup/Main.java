@@ -112,7 +112,7 @@ public class Main {
 		Grammar grammar = parse_grammar_spec();
 		if (grammar == null)
 			return 1;
-		grammar.add_wildcard_rules();
+		grammar.addWildcardRules();
 		timer.popTimer(Timer.TIMESTAMP.parse_time);
 
 		/* check for unused bits */
@@ -312,12 +312,12 @@ public class Main {
 				continue;
 
 			/* is this one unused */
-			if (term.use_count() == 0) {
+			if (term.getUseCount() == 0) {
 				/* count it and warn if we are doing warnings */
 				unused_term++;
 				if (!options.nowarn) {
 					ErrorManager.getManager()
-							.emit_warning("Terminal \"" + term.name() + "\" was declared but never used");
+							.emit_warning("Terminal \"" + term.getName() + "\" was declared but never used");
 				}
 			}
 		}
@@ -326,16 +326,16 @@ public class Main {
 		/* check for unused non terminals */
 		for (NonTerminal nt : grammar.non_terminals()) {
 			/* is this one unused */
-			if (nt.use_count() == 0 || nt.productions().size() == 0) {
+			if (nt.getUseCount() == 0 || nt.getProductions().size() == 0) {
 				/* count and warn if we are doing warnings */
 				unused_non_term++;
 				if (!options.nowarn) {
 					String reason;
-					if (nt.use_count() == 0)
+					if (nt.getUseCount() == 0)
 						reason = "\" was declared but never used";
 					else
 						reason = "\" has no production";
-					ErrorManager.getManager().emit_warning("Non terminal \"" + nt.name() + reason);
+					ErrorManager.getManager().emit_warning("Non terminal \"" + nt.getName() + reason);
 				}
 			}
 		}
@@ -360,28 +360,28 @@ public class Main {
 		/* compute nullability of all non terminals */
 		if (options.opt_do_debug || options.print_progress)
 			ErrorManager.getManager().emit_info("  Computing non-terminal nullability...");
-		grammar.compute_nullability();
+		grammar.computeNullability();
 		timer.popTimer(Timer.TIMESTAMP.nullability_time);
 
 		timer.pushTimer();
 		/* compute first sets of all non terminals */
 		if (options.opt_do_debug || options.print_progress)
 			ErrorManager.getManager().emit_info("  Computing first sets...");
-		grammar.compute_first_sets();
+		grammar.computeFirsts();
 		timer.popTimer(Timer.TIMESTAMP.first_time);
 
 		timer.pushTimer();
 		/* build the LR viable prefix recognition machine */
 		if (options.opt_do_debug || options.print_progress)
 			ErrorManager.getManager().emit_info("  Building state machine...");
-		grammar.build_machine();
+		grammar.buildMachine();
 		timer.popTimer(Timer.TIMESTAMP.machine_time);
 
 		timer.pushTimer();
 		/* build the LR parser action and reduce-goto tables */
 		if (options.opt_do_debug || options.print_progress)
 			ErrorManager.getManager().emit_info("  Filling in tables...");
-		grammar.build_tables(options.opt_compact_red);
+		grammar.buildTables(options.opt_compact_red);
 		timer.popTimer(Timer.TIMESTAMP.table_time);
 
 		timer.pushTimer();
@@ -389,11 +389,11 @@ public class Main {
 		if (options.opt_do_debug || options.print_progress)
 			ErrorManager.getManager().emit_info("  Checking for non-reduced productions...");
 		if (!options.nowarn)
-			grammar.check_tables();
+			grammar.checkTables();
 		timer.popTimer(Timer.TIMESTAMP.reduce_check_time);
 
 		/* if we have more conflicts than we expected issue a message and die */
-		if (grammar.num_conflicts() > options.expect_conflicts) {
+		if (grammar.getConflictCount() > options.expect_conflicts) {
 			ErrorManager.getManager()
 					.emit_error("*** More conflicts encountered than expected " + "-- parser generation aborted");
 			// indicate the problem.
@@ -509,13 +509,13 @@ public class Main {
 				+ plural(ErrorManager.getManager().getWarningCount()));
 
 		/* basic stats */
-		System.err.print("  " + grammar.num_terminals() + " terminal" + plural(grammar.num_terminals()) + ", ");
+		System.err.print("  " + grammar.getTerminalCount() + " terminal" + plural(grammar.getTerminalCount()) + ", ");
 		System.err
-				.print(grammar.num_non_terminals() + " non-terminal" + plural(grammar.num_non_terminals()) + ", and ");
+				.print(grammar.getNonterminalCount() + " non-terminal" + plural(grammar.getNonterminalCount()) + ", and ");
 		System.err
-				.println(grammar.num_productions() + " production" + plural(grammar.num_productions()) + " declared, ");
-		System.err.print("  producing " + grammar.lalr_states().size() + " unique parse states,");
-		System.err.println(" " + grammar.num_actions() + " unique action" + plural(grammar.num_actions()) + ". ");
+				.println(grammar.getProductionCount() + " production" + plural(grammar.getProductionCount()) + " declared, ");
+		System.err.print("  producing " + grammar.getLalrStates().size() + " unique parse states,");
+		System.err.println(" " + grammar.gatActionCount() + " unique action" + plural(grammar.gatActionCount()) + ". ");
 
 		/* unused symbols */
 		System.err.println("  " + unused_term + " terminal" + plural(unused_term) + " declared but not used.");
@@ -526,7 +526,7 @@ public class Main {
 		System.err.println("  " + not_reduced + " production" + plural(not_reduced) + " never reduced.");
 
 		/* conflicts */
-		System.err.println("  " + grammar.num_conflicts() + " conflict" + plural(grammar.num_conflicts()) + " detected"
+		System.err.println("  " + grammar.getConflictCount() + " conflict" + plural(grammar.getConflictCount()) + " detected"
 				+ " (" + options.expect_conflicts + " expected).");
 
 		/* code location */

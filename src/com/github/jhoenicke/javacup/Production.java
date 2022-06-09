@@ -23,9 +23,35 @@ package com.github.jhoenicke.javacup;
 
 public class Production {
 
-	/*-----------------------------------------------------------*/
-	/*--- Constructor(s) ----------------------------------------*/
-	/*-----------------------------------------------------------*/
+	/** The left hand side non-terminal. */
+	private final NonTerminal lhs;
+
+	/** The precedence of the rule */
+	private int rhsLevel = -1;
+	private int rhsAssociation = -1;
+
+	/** A collection of parts for the right hand side. */
+	private final SymbolPart rhs[];
+
+	/**
+	 * An action_part containing code for the action to be performed when we reduce
+	 * with this production.
+	 */
+	private final ActionPart action;
+
+	/** Index number of the production. */
+	private final int index, actionIndex;
+
+	/** initial lr item corresponding to the production. */
+	private LrItem lrItem;
+
+	/** Is the nullability of the production known or unknown? */
+	private boolean nullableKnown = false;
+
+	/** Nullability of the production (can it derive the empty string). */
+	private boolean nullable = false;
+
+	private int indexOfIntermediateResult;
 
 	/**
 	 * Full constructor. This constructor accepts a LHS non terminal, an array of
@@ -57,28 +83,28 @@ public class Production {
 	 * actions at the end where they can be handled as part of a reduce by the
 	 * parser.
 	 */
-	public Production(int index, int action_index, NonTerminal lhs_sym, SymbolPart rhs[], int last_act_loc,
+	public Production(int index, int actionIndex, NonTerminal lhsSymbol, SymbolPart rhs[], int last_act_loc,
 			ActionPart action, Terminal precedence) {
 		if (precedence != null) {
-			_rhs_prec = precedence.precedence_num();
-			_rhs_assoc = precedence.precedence_side();
+			rhsLevel = precedence.getLevel();
+			rhsAssociation = precedence.getAssociativity();
 		}
-		_lhs = lhs_sym;
-		_rhs = rhs;
-		_action = action;
-		_index = index;
-		_action_index = action_index;
+		this.lhs = lhsSymbol;
+		this.rhs = rhs;
+		this.action = action;
+		this.index = index;
+		this.actionIndex = actionIndex;
 		for (int i = 0; i < rhs.length; i++) {
-			GrammarSymbol rhs_sym = rhs[i].the_symbol;
+			GrammarSymbol rhs_sym = rhs[i].getSymbol();
 			if (rhs_sym != null)
-				rhs_sym.note_use();
+				rhs_sym.incrementUseCount();
 			if (precedence == null && rhs_sym instanceof Terminal) {
 				Terminal term = (Terminal) rhs_sym;
-				if (term.precedence_num() != Assoc.no_prec) {
-					if (_rhs_prec == Assoc.no_prec) {
-						_rhs_prec = term.precedence_num();
-						_rhs_assoc = term.precedence_side();
-					} else if (term.precedence_num() != _rhs_prec) {
+				if (term.getLevel() != Assoc.NOPREC) {
+					if (rhsLevel == Assoc.NOPREC) {
+						rhsLevel = term.getLevel();
+						rhsAssociation = term.getAssociativity();
+					} else if (term.getLevel() != rhsLevel) {
 						ErrorManager.getManager()
 								.emit_error("Production " + this + " has more than one precedence symbol");
 					}
@@ -87,113 +113,62 @@ public class Production {
 		}
 		indexOfIntermediateResult = last_act_loc;
 		/* put us in the production list of the lhs non terminal */
-		lhs_sym.add_production(this);
+		lhsSymbol.addProduction(this);
 	}
-
-	/*-----------------------------------------------------------*/
-	/*--- (Access to) Instance Variables ------------------------*/
-	/*-----------------------------------------------------------*/
-
-	/** The left hand side non-terminal. */
-	private final NonTerminal _lhs;
 
 	/** The left hand side non-terminal. */
 	public NonTerminal lhs() {
-		return _lhs;
+		return lhs;
 	}
-
-	/** The precedence of the rule */
-	private int _rhs_prec = -1;
-	private int _rhs_assoc = -1;
 
 	/** Access to the precedence of the rule */
-	public int precedence_num() {
-		return _rhs_prec;
+	public int getLevel() {
+		return rhsLevel;
 	}
 
-	public int precedence_side() {
-		return _rhs_assoc;
+	public int getAssociativity() {
+		return rhsAssociation;
 	}
-
-	/* . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . */
-
-	/** A collection of parts for the right hand side. */
-	private final SymbolPart _rhs[];
 
 	/** Access to the collection of parts for the right hand side. */
-	public SymbolPart rhs(int indx) {
-		return _rhs[indx];
+	public SymbolPart getRhsAt(int indx) {
+		return rhs[indx];
 	}
-
-	/* . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . */
 
 	/** How much of the right hand side array we are presently using. */
-	public int rhs_length() {
-		return _rhs.length;
+	public int getRhsSize() {
+		return rhs.length;
 	}
 
-	public int rhs_stackdepth() {
-		return _rhs.length;
+	/** How much of the right hand side array we are presently using. */
+	public int getRhsStackDepth() {
+		return rhs.length;
 	}
-
-	/* . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . */
 
 	/**
 	 * An action_part containing code for the action to be performed when we reduce
 	 * with this production.
 	 */
-	private final ActionPart _action;
-
-	/**
-	 * An action_part containing code for the action to be performed when we reduce
-	 * with this production.
-	 */
-	public ActionPart action() {
-		return _action;
+	public ActionPart getAction() {
+		return action;
 	}
-
-	/* . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . */
-
-	/** Index number of the production. */
-	private final int _index, _action_index;
 
 	/** Index number of the production. */
 	public int index() {
-		return _index;
+		return index;
 	}
 
 	/** Index number of the action for this production. */
-	public int action_index() {
-		return _action_index;
+	public int getActionIndex() {
+		return actionIndex;
 	}
-
-	/* . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . */
-
-	/** initial lr item corresponding to the production. */
-	private LrItem _itm;
 
 	/** Index number of the production. */
-	public LrItem item() {
-		if (_itm == null)
-			_itm = new LrItem(this);
-		return _itm;
+	public LrItem getItem() {
+		if (lrItem == null)
+			lrItem = new LrItem(this);
+		return lrItem;
 	}
-
-	/* . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . */
-
-	/** Is the nullability of the production known or unknown? */
-	private boolean _nullable_known = false;
-
-	/** Nullability of the production (can it derive the empty string). */
-	private boolean _nullable = false;
-
-	/* . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . */
-
-	/*-----------------------------------------------------------*/
-	/*--- General Methods ---------------------------------------*/
-	/*-----------------------------------------------------------*/
-
-	private int indexOfIntermediateResult;
 
 	/**
 	 * @return the index of the result of the previous intermediate action on the
@@ -203,8 +178,6 @@ public class Production {
 		return indexOfIntermediateResult;
 	}
 
-	/* . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . */
-
 	/**
 	 * Check to see if the production (now) appears to be nullable. A production is
 	 * nullable if its RHS could derive the empty string. This results when the RHS
@@ -212,74 +185,67 @@ public class Production {
 	 */
 	public boolean check_nullable() {
 		/* if we already know bail out early */
-		if (_nullable_known)
-			return _nullable;
+		if (nullableKnown)
+			return nullable;
 
 		/* if we have a zero size RHS we are directly nullable */
-		if (rhs_length() == 0) {
+		if (getRhsSize() == 0) {
 			/* stash and return the result */
-			return set_nullable(true);
+			return setNullable(true);
 		}
 
 		/* otherwise we need to test all of our parts */
-		for (int pos = 0; pos < rhs_length(); pos++) {
+		for (int pos = 0; pos < getRhsSize(); pos++) {
 			/* only look at non-actions */
-			GrammarSymbol sym = _rhs[pos].the_symbol;
+			GrammarSymbol sym = rhs[pos].getSymbol();
 
 			/* if its a terminal we are definitely not nullable */
-			if (!sym.is_non_term())
-				return set_nullable(false);
+			if (!sym.isNonTerm())
+				return setNullable(false);
 			/* its a non-term, is it marked nullable */
-			else if (!((NonTerminal) sym).nullable())
+			else if (!((NonTerminal) sym).isNullable())
 				/* this one not (yet) nullable, so we aren't */
 				return false;
 		}
 
 		/* if we make it here all parts are nullable */
-		return set_nullable(true);
+		return setNullable(true);
 	}
 
 	/** set (and return) nullability */
-	private boolean set_nullable(boolean v) {
-		_nullable_known = true;
-		_nullable = v;
+	private boolean setNullable(boolean v) {
+		nullableKnown = true;
+		nullable = v;
 		return v;
 	}
 
-	public boolean is_proxy() {
-		return _rhs.length == 1 && action() == null;
+	public boolean isProxy(){
+		return rhs.length == 1 && getAction() == null;
 	}
-
-	/* . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . */
 
 	/**
 	 * Return the first set based on current NT firsts. This assumes that
 	 * nullability has already been computed for all non terminals and productions.
 	 */
-	public TerminalSet first_set(Grammar grammar) {
-		return item().calc_lookahead(grammar);
+	public TerminalSet getFirsts(Grammar grammar) {
+		return getItem().calculateLookahead(grammar);
 	}
 
-	/* . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . */
-
-	/** Convert to a simpler string. */
 	public String toString() {
 		StringBuilder result = new StringBuilder();
 
-		result.append(lhs().name()).append(" ::= ");
-		for (int i = 0; i < rhs_length(); i++) {
-			GrammarSymbol s = rhs(i).the_symbol;
+		result.append(lhs().getName()).append(" ::= ");
+		for (int i = 0; i < getRhsSize(); i++) {
+			GrammarSymbol s = getRhsAt(i).getSymbol();
 			// MH 07/07/2022 the_symbol can be null if a terminal is not declared
 			if (s == null)
 				result.append("***UNDECLARED***");
 			else
-				result.append(s.name());
+				result.append(s.getName());
 			result.append(" ");
 		}
 
 		return result.toString();
 	}
-
-	/*-----------------------------------------------------------*/
 
 }
