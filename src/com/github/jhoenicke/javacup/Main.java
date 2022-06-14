@@ -35,10 +35,12 @@ import com.github.jhoenicke.javacup.runtime.ComplexSymbolFactory;
  * <dd>specify name for symbol constant class [default "sym"]
  * <dt>-interface
  * <dd>emit symbol constant <i>interface</i>, rather than class
+ * <dt>-enum
+ * <dd>emit symbol constant <i>enum</i>, rather than class
  * <dt>-nonterms
  * <dd>put non terminals in symbol constant class
  * <dt>-expect #
- * <dd>number of conflicts expected/allowed [default 0]
+ * <dd>number of warning conflicts expected/allowed [default 0]
  * <dt>-compact_red
  * <dd>compact tables by defaulting to most frequent reduce
  * <dt>-nowarn
@@ -187,6 +189,7 @@ public class Main {
 				+ "    -typearg args  specify type arguments for parser class\n"
 				+ "    -symbols name  specify name for symbol constant class [default \"sym\"]\n"
 				+ "    -interface     put symbols in an interface, rather than a class\n"
+				+ "    -enum          put symbols in an enum, rather than an interface or a class\n"
 				+ "    -nonterms      put non terminals in symbol constant class\n"
 				+ "    -expect #      number of conflicts expected/allowed [default 0]\n"
 				+ "    -compact_red   compact tables by defaulting to most frequent reduce\n"
@@ -444,14 +447,38 @@ public class Main {
 	}
 
 	private void emit_symbols(Grammar grammar) {
-		File file = buildFile(options.symbol_const_class_name, "java");
-		PrintWriter symbol_class_file = safeOpen(file);
-		if (symbol_class_file != null) {
-			ErrorManager.getManager().emit_info("Generate Symbol file : " + file.getPath());
-			Emit emit = new Emit(options, timer);
-			emit.symbols(symbol_class_file, grammar);
+		switch (options.symType) {
+		case CLASS:
+		case INTERFACE:
+			File file = buildFile(options.symbol_const_class_name, "java");
+			PrintWriter symbol_class_file = safeOpen(file);
+			if (symbol_class_file != null) {
+				ErrorManager.getManager().emit_info("Generate Symbol file : " + file.getPath());
+				Emit emit = new Emit(options, timer);
+				emit.symbols(symbol_class_file, grammar);
+			}
+			safeClose(symbol_class_file, file);
+			break;
+		case ENUM:
+			File file1 = buildFile(options.symbol_const_class_name, "java");
+			PrintWriter symbol_class_file1 = safeOpen(file1);
+			if (symbol_class_file1 != null) {
+				ErrorManager.getManager().emit_info("Generate Terminal file : " + file1.getPath());
+				Emit emit = new Emit(options, timer);
+				emit.terminals(symbol_class_file1, grammar);
+			}
+			safeClose(symbol_class_file1, file1);
+			File file2 = buildFile(options.symbol_const_nonterminal_name, "java");
+			PrintWriter symbol_class_file2 = safeOpen(file2);
+			if (symbol_class_file2 != null) {
+				ErrorManager.getManager().emit_info("Generate Nonterminal file : " + file2.getPath());
+				Emit emit = new Emit(options, timer);
+				emit.nonterminals(symbol_class_file2, grammar);
+			}
+			safeClose(symbol_class_file2, file2);
+			break;
 		}
-		safeClose(symbol_class_file, file);
+
 	}
 
 	private void emit_parser(Grammar grammar) {

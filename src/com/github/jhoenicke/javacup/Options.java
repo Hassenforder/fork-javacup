@@ -30,8 +30,19 @@ public class Options {
 	/** Directory were the resulting code goes into (null is used for unnamed). */
 	public String dest_dir = null;
 
+	/** Name of the generated class for nonterminal constants. */
+	public String symbol_const_nonterminal_name = "ENonterminal";
+
 	/** Name of the generated class for symbol constants. */
 	public String symbol_const_class_name = "Sym";
+
+	enum SymType  {
+		CLASS,
+		INTERFACE,
+		ENUM
+	}
+	/** User option -- should symbols be put in a class or an interface or en enum ? [MH] */
+	public SymType symType = SymType.CLASS;
 
 	/** Name of the generated parser class. */
 	public String parser_class_name = "Parser";
@@ -47,8 +58,7 @@ public class Options {
 	 * constant class.
 	 */
 	public boolean include_non_terms = false;
-	/** User option -- do not print a summary. */
-	public boolean no_summary = false;
+
 	/** User option -- number of conflicts to expect */
 	public int expect_conflicts = 0;
 
@@ -70,6 +80,9 @@ public class Options {
 	/** List of imports (Strings containing class names) to go with actions. */
 	public ArrayList<String> import_list = new ArrayList<String>();
 
+	/** User option -- do not print a summary. */
+	public boolean no_summary = false;
+
 	/** Do we skip warnings? */
 	public boolean nowarn = false;
 
@@ -81,9 +94,6 @@ public class Options {
 	 * values?
 	 */
 	public boolean opt_old_lr_values = true;
-
-	/** User option -- should symbols be put in a class or an interface? [CSA] */
-	public boolean sym_interface = false;
 
 	/**
 	 * User option -- should generator suppress references to
@@ -221,7 +231,12 @@ public class Options {
 			return true;
 		}
 		if (option.equals("interface")) {
-			sym_interface = true;
+			symType = SymType.INTERFACE;
+			return true;
+		}
+		if (option.equals("enum")) {
+			opt_java15 = true;
+			symType = SymType.ENUM;
 			return true;
 		}
 		if (option.equals("noscanner")) {

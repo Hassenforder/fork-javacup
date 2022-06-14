@@ -253,7 +253,7 @@ public abstract class LRParser {
    */
   public Symbol scan() throws java.lang.Exception {
     Symbol sym = getScanner().next_token();
-    return (sym!=null) ? sym : getSymbolFactory().newSymbol("END_OF_FILE",0);
+    return (sym!=null) ? sym : getSymbolFactory().endSymbol();
   }
 
   /*. . . . . . . . . . . . . . . . . . . . . . . . . . . . . .*/
@@ -354,7 +354,7 @@ public abstract class LRParser {
 
       /* push dummy Symbol with start state to get us underway */
       stack.clear();
-      stack.add(getSymbolFactory().startSymbol("START", 0, 0));
+      stack.add(getSymbolFactory().startSymbol());
       int parse_state = 0;
 
       /* continue until we are told to stop */
@@ -510,7 +510,7 @@ public abstract class LRParser {
 
       /* push dummy Symbol with start state to get us underway */
       stack.clear();
-      stack.add(getSymbolFactory().startSymbol("START",0, 0));
+      stack.add(getSymbolFactory().startSymbol());
       int parse_state = 0;
 
       /* continue until we are told to stop */
@@ -555,6 +555,7 @@ public abstract class LRParser {
 	      while (handle_size-- > 0)
 		stack.remove(stack.size()-1);
 	      
+	      debug_message("????");
 	      /* look up the state to go to from the one popped back to */
 	      act = parse_table().getReduce(stack.get(stack.size()-1).parse_state, lhs_sym.sym);
 	      debug_message("# Reduce rule: top state " +
@@ -765,7 +766,7 @@ public abstract class LRParser {
 	}
 
       /* build and shift a special error Symbol */
-      error_token = getSymbolFactory().newSymbol("ERROR",1, left, right);
+      error_token = getSymbolFactory().errorSymbol(left, right);
       error_token.parse_state = (act>>1);
       error_token.used_by_parser = true;
       stack.add(error_token);

@@ -62,6 +62,7 @@
     <java fork="true" classpath="${bootstrap}" classname="com.github.jhoenicke.javacup.Main">
       <arg value="-destdir"/>
       <arg value="${java}"/>
+        <arg value="-debug"/>
       <arg value="${cup}/parser.cup"/>
     </java>
     <jflex file="${flex}/Lexer.jflex" destdir="${java}" />
@@ -89,7 +90,18 @@
     <java jar="${dist}/${jar}.jar" fork="true">
         <arg value="${cup}/parser.cup" />
     </java>  
-    
+    <java jar="${dist}/${jar}.jar" fork="true">
+    	<arg value="-enum"/>
+        <arg value="article.cup" />
+    </java>  
+    <java jar="${dist}/${jar}.jar" fork="true">
+    	<arg value="-enum"/>
+        <arg value="article2.cup" />
+    </java>  
+    <java jar="${dist}/${jar}.jar" fork="true">
+    	<arg value="-enum"/>
+        <arg value="calculator.cup" />
+    </java>  
   </target>
 
   <target name="javadoc">

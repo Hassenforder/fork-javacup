@@ -104,4 +104,46 @@ public class SimpleSymbolFactory implements SymbolFactory {
 			return "(" + mName + " " + left + ":" + mLcolumn + "-" + right + ":" + mRcolumn + ")";
 		}
 	}
+
+	@Override
+	public Symbol newSymbol(Enum<?> token, Symbol left, Symbol right, Object value) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Symbol newSymbol(Enum<?> token, Symbol left, Symbol right) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Symbol newSymbol(Enum<?> token, Object value) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Symbol newSymbol(Enum<?> token) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Symbol startSymbol() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Symbol endSymbol() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Symbol errorSymbol(Symbol left, Symbol right) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }
