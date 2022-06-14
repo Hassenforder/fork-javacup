@@ -32,7 +32,11 @@ import com.github.jhoenicke.javacup.runtime.ComplexSymbolFactory;
  * <dt>-parser name
  * <dd>specify parser class name [default "parser"]
  * <dt>-symbols name
- * <dd>specify name for symbol constant class [default "sym"]
+ * <dd>specify name for symbol constant class [default "Sym"]
+ * <dt>-terminals name
+ * <dd>specify name for terminal constant enum [default "ETerminal"] in Enum mode
+ * <dt>-nonterminals name
+ * <dd>specify name for nonterminal constant enum [default "ENonTerminal"] in Enum mode
  * <dt>-interface
  * <dd>emit symbol constant <i>interface</i>, rather than class
  * <dt>-enum
@@ -188,6 +192,8 @@ public class Main {
 				+ "    -parser name   specify parser class name [default \"parser\"]\n"
 				+ "    -typearg args  specify type arguments for parser class\n"
 				+ "    -symbols name  specify name for symbol constant class [default \"sym\"]\n"
+				+ "    -terminals name		specify name for terminal constant enum [default \"sym\"] in Enum mode\n"
+				+ "    -nonterminals name	specify name for nonterminal constant enum [default \"sym\"] in Enum mode\n"
 				+ "    -interface     put symbols in an interface, rather than a class\n"
 				+ "    -enum          put symbols in an enum, rather than an interface or a class\n"
 				+ "    -nonterms      put non terminals in symbol constant class\n"
@@ -222,7 +228,8 @@ public class Main {
 			String option = argv[i];
 			/* try to get the various options */
 			if (option.equals("-package") || option.equals("-destdir") || option.equals("-parser")
-					|| option.equals("-typearg") || option.equals("-symbols") || option.equals("-expect")) {
+					|| option.equals("-symbols") || option.equals("-terminals") || option.equals("-nonterminals")
+					|| option.equals("-typearg") || option.equals("-expect")) {
 				/* must have an arg */
 				if (++i >= len || argv[i].startsWith("-") || argv[i].endsWith(".cup"))
 					ErrorManager.getManager().emit_fatal(option + " must have an argument");
@@ -460,7 +467,7 @@ public class Main {
 			safeClose(symbol_class_file, file);
 			break;
 		case ENUM:
-			File file1 = buildFile(options.symbol_const_class_name, "java");
+			File file1 = buildFile(options.symbol_const_terminal_name, "java");
 			PrintWriter symbol_class_file1 = safeOpen(file1);
 			if (symbol_class_file1 != null) {
 				ErrorManager.getManager().emit_info("Generate Terminal file : " + file1.getPath());

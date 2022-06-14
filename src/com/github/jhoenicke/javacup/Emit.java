@@ -259,7 +259,7 @@ public class Emit {
 
 		/* class header */
 		out.println("/** CUP generated " + type + " containing terminal constants. */");
-		out.println("public " + type + " " + options.symbol_const_class_name + " {");
+		out.println("public " + type + " " + options.symbol_const_terminal_name + " {");
 
 		out.println("  /* terminals */");
 

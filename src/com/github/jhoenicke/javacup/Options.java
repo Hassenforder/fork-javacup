@@ -30,8 +30,11 @@ public class Options {
 	/** Directory were the resulting code goes into (null is used for unnamed). */
 	public String dest_dir = null;
 
-	/** Name of the generated class for nonterminal constants. */
+	/** Name of the generated class for nonterminal constants as Enum. */
 	public String symbol_const_nonterminal_name = "ENonterminal";
+
+	/** Name of the generated class for terminal constants as Enum. */
+	public String symbol_const_terminal_name = "ETerminal";
 
 	/** Name of the generated class for symbol constants. */
 	public String symbol_const_class_name = "Sym";
@@ -156,6 +159,24 @@ public class Options {
 				return true;
 			} else {
 				ErrorManager.getManager().emit_fatal("symbols must have a name argument");
+				return false;
+			}
+		}
+		if (option.equals("terminals")) {
+			if (arg != null) {
+				symbol_const_terminal_name = arg;
+				return true;
+			} else {
+				ErrorManager.getManager().emit_fatal("terminals must have a name argument");
+				return false;
+			}
+		}
+		if (option.equals("nonterminals")) {
+			if (arg != null) {
+				symbol_const_nonterminal_name = arg;
+				return true;
+			} else {
+				ErrorManager.getManager().emit_fatal("nonterminals must have a name argument");
 				return false;
 			}
 		}
