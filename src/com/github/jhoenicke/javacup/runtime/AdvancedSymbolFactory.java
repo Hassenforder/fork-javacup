@@ -8,7 +8,7 @@ package com.github.jhoenicke.javacup.runtime;
  * @author Michel Hassenforder
  */
 
-public class AdvancedSymbolFactory implements SymbolFactory {
+public class AdvancedSymbolFactory implements SymbolFactory2, SymbolFactory {
 	
 	/**
 	 * Location of a symbol based on line and column in the input file
@@ -167,32 +167,27 @@ public class AdvancedSymbolFactory implements SymbolFactory {
 
 	@Override
 	public Symbol newSymbol(String name, int id, Symbol left, Symbol right, Object value) {
-		// TODO Auto-generated method stub
-		return null;
+		throw new Error ("Old api to avoid with this factory");
 	}
 
 	@Override
 	public Symbol newSymbol(String name, int id, Symbol left, Symbol right) {
-		// TODO Auto-generated method stub
-		return null;
+		throw new Error ("Old api to avoid with this factory");
 	}
 
 	@Override
 	public Symbol newSymbol(String name, int id) {
-		// TODO Auto-generated method stub
-		return null;
+		throw new Error ("Old api to avoid with this factory");
 	}
 
 	@Override
 	public Symbol newSymbol(String name, int id, Object value) {
-		// TODO Auto-generated method stub
-		return null;
+		throw new Error ("Old api to avoid with this factory");
 	}
 
 	@Override
 	public Symbol startSymbol(String name, int id, int state) {
-		// TODO Auto-generated method stub
-		return null;
+		throw new Error ("Old api to avoid with this factory");
 	}
 
 }

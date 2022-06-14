@@ -129,6 +129,12 @@ public abstract class LRParser {
   public SymbolFactory getSymbolFactory(){
     return symbolFactory;
   }
+  public SymbolFactory2 getSymbolFactory2() {
+	if (symbolFactory instanceof SymbolFactory2)
+		return (SymbolFactory2) symbolFactory;
+	return null;
+  }
+
   /*-----------------------------------------------------------*/
   /*--- (Access to) Static (Class) Variables ------------------*/
   /*-----------------------------------------------------------*/
@@ -253,7 +259,9 @@ public abstract class LRParser {
    */
   public Symbol scan() throws java.lang.Exception {
     Symbol sym = getScanner().next_token();
-    return (sym!=null) ? sym : getSymbolFactory().endSymbol();
+    if (sym != null) return sym;
+    if (getSymbolFactory2() != null) return getSymbolFactory2().endSymbol();
+    else return getSymbolFactory().newSymbol("END_OF_FILE", 0);
   }
 
   /*. . . . . . . . . . . . . . . . . . . . . . . . . . . . . .*/
@@ -354,7 +362,10 @@ public abstract class LRParser {
 
       /* push dummy Symbol with start state to get us underway */
       stack.clear();
-      stack.add(getSymbolFactory().startSymbol());
+      if (getSymbolFactory2() != null)
+          stack.add(getSymbolFactory2().startSymbol());
+      else stack.add(getSymbolFactory().startSymbol("START", 0, 0));
+
       int parse_state = 0;
 
       /* continue until we are told to stop */
@@ -510,7 +521,9 @@ public abstract class LRParser {
 
       /* push dummy Symbol with start state to get us underway */
       stack.clear();
-      stack.add(getSymbolFactory().startSymbol());
+      if (getSymbolFactory2() != null)
+          stack.add(getSymbolFactory2().startSymbol());
+      else stack.add(getSymbolFactory().startSymbol("START", 0, 0));
       int parse_state = 0;
 
       /* continue until we are told to stop */
@@ -555,7 +568,6 @@ public abstract class LRParser {
 	      while (handle_size-- > 0)
 		stack.remove(stack.size()-1);
 	      
-	      debug_message("????");
 	      /* look up the state to go to from the one popped back to */
 	      act = parse_table().getReduce(stack.get(stack.size()-1).parse_state, lhs_sym.sym);
 	      debug_message("# Reduce rule: top state " +
@@ -766,7 +778,11 @@ public abstract class LRParser {
 	}
 
       /* build and shift a special error Symbol */
-      error_token = getSymbolFactory().errorSymbol(left, right);
+      if (getSymbolFactory2() != null)
+    	  error_token = getSymbolFactory2().errorSymbol(left, right);
+      else 
+          error_token = getSymbolFactory().newSymbol("ERROR",1, left, right);
+
       error_token.parse_state = (act>>1);
       error_token.used_by_parser = true;
       stack.add(error_token);

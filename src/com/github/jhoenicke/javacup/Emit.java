@@ -480,17 +480,20 @@ public class Emit {
 			out.println("              " + pre("after_reduce") + "(RESULT, " + pre("symbols_array") + ");");
 		/* code to return lhs symbol */
 		String symbolName = "";
-	
+		String factoryName = "";
+		
 		switch (options.symType) {
 		case CLASS:
 		case INTERFACE:
 			symbolName = "\"" + prod.lhs().getName() + "\", " + prod.lhs().getIndex();
+			factoryName = "getSymbolFactory()";
 			break;
 		case ENUM:
 			symbolName = options.symbol_const_nonterminal_name + "." + prod.lhs().getName();
+			factoryName = "getSymbolFactory2()";
 			break;
 		}
-		out.println("              return parser.getSymbolFactory().newSymbol(" + symbolName + leftright + result + ");");
+		out.println("              return parser." + factoryName + ".newSymbol(" + symbolName + leftright + result + ");");
 	}
 
 	/* . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . */

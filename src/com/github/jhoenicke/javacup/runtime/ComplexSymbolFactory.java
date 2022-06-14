@@ -109,7 +109,6 @@ public class ComplexSymbolFactory implements SymbolFactory{
         }
     }
 
-
     // Factory methods
     public Symbol newSymbol(String name, int id, Location left, Location right, Object value){
         return new ComplexSymbol(name,id,left,right,value);
@@ -132,39 +131,4 @@ public class ComplexSymbolFactory implements SymbolFactory{
     public Symbol startSymbol(String name, int id, int state){
         return new ComplexSymbol(name,id,state);
     }
-	@Override
-	public Symbol newSymbol(Enum<?> token, Symbol left, Symbol right, Object value) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	@Override
-	public Symbol newSymbol(Enum<?> token, Symbol left, Symbol right) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	@Override
-	public Symbol newSymbol(Enum<?> token, Object value) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	@Override
-	public Symbol newSymbol(Enum<?> token) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	@Override
-	public Symbol startSymbol() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	@Override
-	public Symbol endSymbol() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	@Override
-	public Symbol errorSymbol(Symbol left, Symbol right) {
-		// TODO Auto-generated method stub
-		return null;
-	}
 }
