@@ -129,6 +129,14 @@ public class Main {
 		timer.popTimer(Timer.TIMESTAMP.check_time);
 
 		timer.pushTimer();
+
+		/*
+		 *  try to erase generated files
+		 *  they are now obsolete
+		 */
+		if (options.opt_erase_generated)
+			emit_erase(grammar);
+
 		/* don't proceed unless we are error free */
 		if (ErrorManager.getManager().getFatalCount() == 0 && ErrorManager.getManager().getErrorCount() == 0) {
 
@@ -139,12 +147,9 @@ public class Main {
 			build_parser(grammar);
 			timer.popTimer(Timer.TIMESTAMP.build_time);
 
-			if (options.opt_erase_generated)
-				emit_erase(grammar);
-
 			/* output the generated code, if # of conflicts permits */
-			if (ErrorManager.getManager().getErrorCount() == 0
-					&& ErrorManager.getManager().getWarningCount() != options.expect_conflicts) {
+			if (ErrorManager.getManager().getErrorCount() != 0
+					|| ErrorManager.getManager().getWarningCount() != options.expect_conflicts) {
 				// conflicts! don't emit code, don't dump tables.
 				options.opt_dump_tables = false;
 			} else { // everything's okay, emit parser.
@@ -421,8 +426,10 @@ public class Main {
 
 	private void safeDelete(File file) {
 		try {
-			if (file.exists())
+			if (file.exists()) {
+				ErrorManager.getManager().emit_info("Delete file : " + file.getPath());
 				file.delete();
+			}
 		} catch (Exception e) {
 			ErrorManager.getManager().emit_fatal("Can't delete \"" + file.getAbsolutePath() + "\"");
 		}
@@ -448,6 +455,8 @@ public class Main {
 	}
 
 	private void emit_erase(Grammar grammar) {
+		safeDelete(buildFile(options.symbol_const_terminal_name, "java"));
+		safeDelete(buildFile(options.symbol_const_nonterminal_name, "java"));
 		safeDelete(buildFile(options.symbol_const_class_name, "java"));
 		safeDelete(buildFile(options.parser_class_name, "java"));
 		safeDelete(buildFile(options.parser_class_name, "dump"));
