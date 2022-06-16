@@ -62,8 +62,12 @@ public class Options {
 	 */
 	public boolean include_non_terms = false;
 
-	/** User option -- number of conflicts to expect */
-	public int expect_conflicts = 0;
+	/** User option -- number of conflicts to expect
+	 * -1 means any is ok
+	 *  0 means non conflicts
+	 *  X means exact X conflicts
+	 */
+	public int expect_conflicts = -1;
 
 	/** User declarations for direct inclusion in user action class. */
 	public String action_code = null;

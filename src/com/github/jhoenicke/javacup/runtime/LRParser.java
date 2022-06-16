@@ -398,6 +398,7 @@ public abstract class LRParser {
 	}
 
 	/** Dump the parse stack for debugging purposes. */
+	@SuppressWarnings("unused")
 	private void dump_stack() {
 		if (stack == null) {
 			debug_message("# Stack dump requested, but stack is null");
@@ -436,6 +437,7 @@ public abstract class LRParser {
 	/**
 	 * Do debug output for stack state. [CSA]
 	 */
+	@SuppressWarnings("unused")
 	private void debug_stack() {
 		StringBuffer sb = new StringBuffer("## STACK:");
 		for (int i = 0; i < stack.size(); i++) {

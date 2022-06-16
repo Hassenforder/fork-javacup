@@ -149,9 +149,9 @@ public class Main {
 
 			/* output the generated code, if # of conflicts permits */
 			if (ErrorManager.getManager().getErrorCount() != 0
-					|| ErrorManager.getManager().getWarningCount() != options.expect_conflicts) {
+					|| (options.expect_conflicts != -1 && ErrorManager.getManager().getWarningCount() != options.expect_conflicts)) {
 				// conflicts! don't emit code, don't dump tables.
-				options.opt_dump_tables = false;
+//				options.opt_dump_tables = false;
 			} else { // everything's okay, emit parser.
 				if (options.print_progress)
 					ErrorManager.getManager().emit_info("Writing parser...");
@@ -408,7 +408,7 @@ public class Main {
 		timer.popTimer(Timer.TIMESTAMP.reduce_check_time);
 
 		/* if we have more conflicts than we expected issue a message and die */
-		if (grammar.getConflictCount() > options.expect_conflicts) {
+		if (options.expect_conflicts != -1 && grammar.getConflictCount() > options.expect_conflicts) {
 			ErrorManager.getManager()
 					.emit_error("*** More conflicts encountered than expected " + "-- parser generation aborted");
 			// indicate the problem.
