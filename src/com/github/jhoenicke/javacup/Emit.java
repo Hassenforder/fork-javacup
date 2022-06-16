@@ -894,7 +894,18 @@ public class Emit {
 		dump_file.println();
 	}
 
+	private void dump_messages (PrintWriter dump_file) {
+		if (! ErrorManager.getManager().getMessages().isEmpty()) {
+			dump_file.println("===== Messages =====");
+			for (String message : ErrorManager.getManager().getMessages()) {
+				dump_file.println(message);
+			}
+		}
+	}
+
 	public void dumps(PrintWriter dump_file, Grammar grammar) {
+		if (options.opt_dump_includes_messages)
+			dump_messages(dump_file);
 		if (options.opt_dump_grammar)
 			dump_grammar(dump_file, grammar);
 		if (options.opt_dump_states)

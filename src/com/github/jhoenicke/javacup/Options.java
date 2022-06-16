@@ -6,6 +6,8 @@ public class Options {
 
 	/** User option -- do we print progress messages. */
 	public boolean print_progress = false;
+	/** User option -- we include the messages in the dump  */
+	public boolean opt_dump_includes_messages = false;
 	/** User option -- do we produce a dump of the state machine */
 	public boolean opt_dump_states = false;
 	/** User option -- do we produce a dump of the parse tables */
@@ -216,6 +218,10 @@ public class Options {
 		}
 		if (option.equals("nowarn")) {
 			nowarn = true;
+			return true;
+		}
+		if (option.equals("dump_includes_messages")) {
+			opt_dump_includes_messages = true;
 			return true;
 		}
 		if (option.equals("dump_states")) {

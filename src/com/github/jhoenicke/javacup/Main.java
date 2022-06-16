@@ -166,7 +166,7 @@ public class Main {
 
 		timer.pushTimer();
 		/* do requested dumps */
-		if (options.opt_dump_grammar || options.opt_dump_states || options.opt_dump_tables)
+		if (options.opt_dump_includes_messages || options.opt_dump_grammar || options.opt_dump_states || options.opt_dump_tables)
 			emit_dumps(grammar);
 		timer.popTimer(Timer.TIMESTAMP.dump_time);
 

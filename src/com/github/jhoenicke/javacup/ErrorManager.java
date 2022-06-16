@@ -1,5 +1,7 @@
 package com.github.jhoenicke.javacup;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -23,6 +25,8 @@ public class ErrorManager {
 
 	private Set<String> filter;
 
+	private List<String> messages;
+	
 	private ErrorManager() {
 	}
 
@@ -54,6 +58,11 @@ public class ErrorManager {
 		return warnings;
 	}
 
+	public List<String> getMessages() {
+		if (messages == null) messages = new ArrayList<>();
+		return messages;
+	}
+
 	/**
 	 * Error message format: ERRORLEVEL : MESSAGE @ Symbol:
 	 * name#token=="value"(line/column) ERRORLEVEL : MESSAGE
@@ -73,7 +82,9 @@ public class ErrorManager {
 			tmp.append(" @ ");
 			tmp.append(sym);
 		}
-		System.err.println(tmp);
+		String text = tmp.toString();
+		getMessages().add(text);
+		System.err.println(text);
 	}
 
 	public void emit_info(String message) {
