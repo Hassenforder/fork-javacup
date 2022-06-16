@@ -570,7 +570,7 @@ public class Main {
 
 		/* conflicts */
 		System.err.println("  " + grammar.getConflictCount() + " conflict" + plural(grammar.getConflictCount()) + " detected"
-				+ " (" + options.expect_conflicts + " expected).");
+				+ " (" + (options.expect_conflicts == -1 ? "any" : options.expect_conflicts ) + " expected).");
 
 		/* code location */
 		if (output_produced)

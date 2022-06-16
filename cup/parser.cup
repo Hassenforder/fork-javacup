@@ -195,7 +195,7 @@ terminal
 terminal String
   PACKAGE, IMPORT, CODE, ACTION, PARSER, TERMINAL, NON, NONTERMINAL, INIT, 
   SCAN, WITH, START, PRECEDENCE, LEFT, RIGHT, NONASSOC, SUPER, EXTENDS, 
-  AFTER, REDUCE, OPTION;
+  AFTER, REDUCE, OPTION, EXPECT;
 
 terminal String  ID, CODE_STRING;
 
@@ -203,7 +203,7 @@ non terminal
   package_spec, parser_spec,
   option_spec, option_list, option_, action_code_part,
   code_parts, code_part,
-  parser_code_part, start_spec,
+  parser_code_part, start_spec, expect_spec,
   import_spec, init_code, scan_code, after_reduce_code, symbol,
   terminal_non_terminal, decl_symbol_list, new_symbol_id,
   preced, assoc, precterminal_list, precterminal_id,
@@ -231,6 +231,7 @@ spec ::=
 	code_parts
 	symbol+
 	preced*
+	expect_spec
 	start_spec
 	production+
         {: RESULT = grammar; :}
@@ -243,6 +244,7 @@ spec ::=
 	error
 	symbol+
 	preced*
+	expect_spec
 	start_spec
 	production+
         {: RESULT = grammar; :}
@@ -426,6 +428,13 @@ precterminal_id ::= symbol_id:term
 	:};
 	  
 /*. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . */ 
+
+expect_spec ::= 
+	EXPECT robust_id:val SEMI 
+	{: parser.options.setOption("expect", val); :}
+	|
+	/* empty */
+	;
 
 start_spec ::= 
 	START WITH symbol_id:start_name SEMI 
@@ -617,6 +626,7 @@ robust_id ::= /* all ids that aren't reserved words in Java */
 	| SCAN
 	| WITH
 	| START
+	| EXPECT
 	| PRECEDENCE
 	| LEFT
 	| RIGHT

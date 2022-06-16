@@ -94,6 +94,7 @@ ident = ([:jletter:] | "_" ) ([:jletterdigit:] | [:jletter:] | "_" )*
   "scan"        { return symbol("SCAN",SCAN,yytext());         }
   "with"        { return symbol("WITH",WITH,yytext());         }
   "start"       { return symbol("START",START,yytext());       }
+  "expect"      { return symbol("EXPECT",EXPECT,yytext());       }
   "precedence"  { return symbol("PRECEDENCE",PRECEDENCE,yytext()); }
   "left"        { return symbol("LEFT",LEFT,yytext());         }
   "right"       { return symbol("RIGHT",RIGHT,yytext());       }
