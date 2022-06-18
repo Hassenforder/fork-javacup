@@ -537,7 +537,7 @@ public class Emit {
 		out.println();
 		out.println("  /** Method with the actual generated action code. */");
 		if (options.opt_java15)
-			out.println("  @SuppressWarnings({ \"unused\", \"unchecked\" })");
+			out.println("  @SuppressWarnings(\"unused\")");
 		out.println("  public final " + RUNTIME_PACKAGE + ".Symbol " + pre("do_action") + "(");
 		out.println("    int                        " + pre("act_num,"));
 		out.println("    java.util.ArrayList" + genericArg + " " + pre("stack)"));
