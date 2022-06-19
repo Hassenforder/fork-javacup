@@ -118,7 +118,7 @@ public class Main {
 		Grammar grammar = parse_grammar_spec();
 		if (grammar == null)
 			return 1;
-		grammar.addWildcardRules();
+		grammar.replaceWildcardRules();
 		timer.popTimer(Timer.TIMESTAMP.parse_time);
 
 		/* check for unused bits */

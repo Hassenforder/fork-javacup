@@ -85,23 +85,29 @@
 	</zip>
   </target>
 
-  <target name="test" depends="dist">
-    <java jar="${dist}/${jar}.jar" fork="true">
-        <arg value="${cup}/parser.cup" />
-    </java>  
-    <java jar="${dist}/${jar}.jar" fork="true">
-    	<arg value="-enum"/>
-        <arg value="article.cup" />
-    </java>  
-    <java jar="${dist}/${jar}.jar" fork="true">
-    	<arg value="-enum"/>
-        <arg value="article2.cup" />
-    </java>  
-    <java jar="${dist}/${jar}.jar" fork="true">
-    	<arg value="-enum"/>
-        <arg value="calculator.cup" />
-    </java>  
-  </target>
+	  <target name="test" depends="dist">
+	    <java jar="${dist}/${jar}.jar" fork="true">
+	        <arg value="${cup}/parser.cup" />
+	    </java>  
+	  </target>
+
+	  <target name="test-articles" depends="dist">
+	    <java jar="${dist}/${jar}.jar" fork="true">
+	    	<arg value="-enum"/>
+	        <arg value="article.cup" />
+	    </java>  
+	    <java jar="${dist}/${jar}.jar" fork="true">
+	    	<arg value="-enum"/>
+	        <arg value="article2.cup" />
+	    </java>  
+	  </target>
+
+	  <target name="test-calculator" depends="dist">
+	    <java jar="${dist}/${jar}.jar" fork="true">
+	    	<arg value="-enum"/>
+	        <arg value="calculator.cup" />
+	    </java>  
+	  </target>
 
   <target name="javadoc">
     <javadoc access="protected" author="true"

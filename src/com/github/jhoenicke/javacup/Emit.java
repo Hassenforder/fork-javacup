@@ -368,7 +368,7 @@ public class Emit {
 			String label = symbol.getLabel();
 			String symtype = symbol.getSymbol().getType();
 			boolean is_wildcard = !is_star_action && symtype != null
-					&& (symbol.getSymbol().getName().endsWith("*") || symbol.getSymbol().getName().endsWith("+"));
+					&& (symbol.getSymbol().getName().endsWith("$0_many") || symbol.getSymbol().getName().endsWith("$1_many"));
 			if (options.after_reduce_code != null) {
 				out.println("              " + pre("symbols_array") + "[" + i + "] = "
 						+ stackelem(prod.getRhsStackDepth() - i, options.opt_java15) + ";");
@@ -537,7 +537,7 @@ public class Emit {
 		out.println();
 		out.println("  /** Method with the actual generated action code. */");
 		if (options.opt_java15)
-			out.println("  @SuppressWarnings(\"unused\")");
+			out.println("  @SuppressWarnings({ \"unused\", \"unchecked\" })");
 		out.println("  public final " + RUNTIME_PACKAGE + ".Symbol " + pre("do_action") + "(");
 		out.println("    int                        " + pre("act_num,"));
 		out.println("    java.util.ArrayList" + genericArg + " " + pre("stack)"));

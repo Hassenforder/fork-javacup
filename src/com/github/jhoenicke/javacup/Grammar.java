@@ -144,7 +144,7 @@ public class Grammar {
 			/* create plus symbol as * is defined via +. */
 			getPlusSymbol(sym);
 			String type = sym.getType() == null ? null : sym.getType() + "[]";
-			sym.setStarSymbol(addNonterminal(sym.getName() + "*", type));
+			sym.setStarSymbol(addNonterminal(sym.getName() + "$0_many", type));
 		}
 		return sym.getStarSymbol();
 	}
@@ -152,14 +152,14 @@ public class Grammar {
 	public NonTerminal getPlusSymbol(GrammarSymbol sym) {
 		if (sym.getPlusSymbol() == null) {
 			String type = sym.getType() == null ? null : sym.getType() + "[]";
-			sym.setPlusSymbol(addNonterminal(sym.getName() + "+", type));
+			sym.setPlusSymbol(addNonterminal(sym.getName() + "$1_many", type));
 		}
 		return sym.getPlusSymbol();
 	}
 
 	public NonTerminal getOptSymbol(GrammarSymbol sym) {
 		if (sym.getOptSymbol() == null) {
-			sym.setOptSymbol(addNonterminal(sym.getName() + "?", sym.getType()));
+			sym.setOptSymbol(addNonterminal(sym.getName() + "$0_1", sym.getType()));
 		}
 		return sym.getOptSymbol();
 	}
@@ -560,7 +560,7 @@ public class Grammar {
 		buildProduction(lhs, rhs, null);
 	}
 
-	public void addWildcardRules(GrammarSymbol sym) {
+	public void replaceWildcardRules(GrammarSymbol sym) {
 		ArrayList<ProductionPart> rhs;
 		if (sym.getOptSymbol() != null) {
 			rhs = new ArrayList<ProductionPart>(1);
@@ -597,10 +597,10 @@ public class Grammar {
 
 	}
 
-	public void addWildcardRules() {
+	public void replaceWildcardRules() {
 		for (GrammarSymbol sym : terminals())
-			addWildcardRules(sym);
+			replaceWildcardRules(sym);
 		for (GrammarSymbol sym : non_terminals())
-			addWildcardRules(sym);
+			replaceWildcardRules(sym);
 	}
 }
