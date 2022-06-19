@@ -89,15 +89,6 @@ public class ParseActionTable {
 		return ((actionCode - 1) >> 1);
 	}
 
-	public static String toString(int code) {
-		if (code == ERROR)
-			return "ERROR";
-		else if (isShift(code))
-			return "SHIFT(" + getIndex(code) + ")";
-		else
-			return "REDUCE(" + getIndex(code) + ")";
-	}
-
 	/**
 	 * Compress the action table into it's runtime form. This returns an array
 	 * act_tab and initializes base_table, such that for all entries with
@@ -167,6 +158,15 @@ public class ParseActionTable {
 			}
 		}
 		return compressed;
+	}
+
+	private static String toString(int code) {
+		if (code == ERROR)
+			return "ERROR";
+		else if (isShift(code))
+			return "SHIFT(" + getIndex(code) + ")";
+		else
+			return "REDUCE(" + getIndex(code) + ")";
 	}
 
 	public String toString() {

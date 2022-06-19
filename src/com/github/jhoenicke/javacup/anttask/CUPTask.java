@@ -91,8 +91,8 @@ public class CUPTask extends Task
 	if (debug)         {  sc.add("-debug"); }
 	if (nopositions)   {  sc.add("-nopositions"); }
 	if (noscanner)     {  sc.add("-noscanner"); }
-	if (!quiet) log ("This is "+Version.title_str);
-        if (!quiet) log ("Authors : "+Version.author_str);
+	if (!quiet) log ("This is "+Version.title);
+        if (!quiet) log ("Authors : "+Version.authors);
 	if (!quiet) log ("Bugreports to petter@cs.tum.edu");
 
 	// look for package name and add to destdir

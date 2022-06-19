@@ -59,7 +59,7 @@ public class NonTerminal extends GrammarSymbol {
 	/** Add a production to our set of productions. */
 	public void addProduction(Production production) {
 		/* catch improper productions */
-		assert (production != null && production.lhs() == this)
+		assert (production != null && production.getLhs() == this)
 				: "Attempt to add invalid production to non terminal production table";
 		/* add it to the table, keyed with itself */
 		getProductions().add(production);

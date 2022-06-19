@@ -39,7 +39,6 @@ public class ActionProduction extends Production {
 		return indexOfAction;
 	}
 
-	/** The production we were taken out of. */
 	public Production getBaseProduction() {
 		return baseProduction;
 	}

@@ -8,14 +8,11 @@ package com.github.jhoenicke.javacup;
  * @author Scott Hudson, Jochen Hoenicke
  */
 public class TerminalSet {
+	
 	private final static int LOG_BITS_PER_UNIT = 6;
 	private final static int BITS_PER_UNIT = 64;
 	private long[] elements;
 	private Grammar grammar;
-
-	/*-----------------------------------------------------------*/
-	/*--- Constructor(s) ----------------------------------------*/
-	/*-----------------------------------------------------------*/
 
 	/** Constructor for an empty set. */
 	public TerminalSet(Grammar grammar) {
@@ -23,8 +20,6 @@ public class TerminalSet {
 		this.grammar = grammar;
 		this.elements = new long[((grammar.getTerminalCount() - 1) >>> LOG_BITS_PER_UNIT) + 1];
 	}
-
-	/* . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . */
 
 	/**
 	 * Constructor for cloning from another set.
@@ -36,10 +31,6 @@ public class TerminalSet {
 		elements = other.elements.clone();
 	}
 
-	/*-----------------------------------------------------------*/
-	/*--- General Methods ----------------------------------------*/
-	/*-----------------------------------------------------------*/
-
 	/** Determine if the set is empty. */
 	public boolean empty() {
 		for (int i = 0; i < elements.length; i++)
@@ -47,8 +38,6 @@ public class TerminalSet {
 				return false;
 		return true;
 	}
-
-	/* . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . */
 
 	/**
 	 * Determine if the set contains a particular terminal.
@@ -58,8 +47,6 @@ public class TerminalSet {
 	public boolean contains(Terminal sym) {
 		return contains(sym.getIndex());
 	}
-
-	/* . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . */
 
 	/**
 	 * Given its index determine if the set contains a particular terminal.
@@ -71,8 +58,6 @@ public class TerminalSet {
 		long mask = (1L << (indx & (BITS_PER_UNIT - 1)));
 		return (elements[idx] & mask) != 0;
 	}
-
-	/* . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . */
 
 	/**
 	 * Determine if this set is an (improper) subset of another.
@@ -86,8 +71,6 @@ public class TerminalSet {
 				return false;
 		return true;
 	}
-
-	/* . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . */
 
 	/**
 	 * Add a single terminal to the set.
@@ -104,8 +87,6 @@ public class TerminalSet {
 		return result;
 	}
 
-	/* . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . */
-
 	/**
 	 * Remove a terminal if it is in the set.
 	 * 
@@ -117,8 +98,6 @@ public class TerminalSet {
 		long mask = (1L << (indx & (BITS_PER_UNIT - 1)));
 		elements[idx] &= ~mask;
 	}
-
-	/* . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . */
 
 	/**
 	 * Add (union) in a complete set.
@@ -137,8 +116,6 @@ public class TerminalSet {
 		return changed;
 	}
 
-	/* . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . */
-
 	/**
 	 * Determine if this set intersects another.
 	 * 
@@ -153,8 +130,6 @@ public class TerminalSet {
 		return false;
 	}
 
-	/* . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . */
-
 	/** Equality comparison. */
 	public boolean equals(TerminalSet other) {
 		assert (other.elements.length == elements.length);
@@ -164,8 +139,6 @@ public class TerminalSet {
 		}
 		return true;
 	}
-
-	/* . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . */
 
 	/** Generic equality comparison. */
 	public boolean equals(Object other) {
@@ -183,9 +156,6 @@ public class TerminalSet {
 		return hash;
 	}
 
-	/* . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . */
-
-	/** Convert to string. */
 	public String toString() {
 		StringBuilder result = new StringBuilder("{");
 		String comma = "";
@@ -198,7 +168,5 @@ public class TerminalSet {
 		result.append("}");
 		return result.toString();
 	}
-
-	/*-----------------------------------------------------------*/
 
 }

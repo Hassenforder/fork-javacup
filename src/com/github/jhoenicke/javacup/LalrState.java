@@ -88,13 +88,11 @@ public class LalrState {
 			items.put(entry.getKey(), new Lookaheads(entry.getValue()));
 	}
 
-	/** The item set for this state. */
 	public Map<LrItem, Lookaheads> getItems() {
 		return items;
 	}
 
-	/** Index of this state in the parse tables */
-	public int index() {
+	public int getIndex() {
 		return index;
 	}
 
@@ -197,7 +195,7 @@ public class LalrState {
 				for (LrItem item : outgoing.get(symbol)) {
 					/* add to the kernel of the new state */
 					if (item.getProduction().isProxy()) {
-						GrammarSymbol proxy = item.getProduction().lhs();
+						GrammarSymbol proxy = item.getProduction().getLhs();
 						if (!proxySymbols.contains(proxy)) {
 							proxySymbols.add(proxy);
 						}
@@ -269,9 +267,9 @@ public class LalrState {
 		boolean default_prodisempty = false;
 
 		/* pull out our rows from the tables */
-		int[] our_act_row = actionTable.getTable()[index()];
+		int[] our_act_row = actionTable.getTable()[getIndex()];
 		Production[] productions = new Production[grammar.getTerminalCount() + 1];
-		LalrState[] our_red_row = reduceTable.getTable()[index()];
+		LalrState[] our_red_row = reduceTable.getTable()[getIndex()];
 
 		/* consider each item in our state */
 		for (Entry<LrItem, Lookaheads> itm : getItems().entrySet()) {
@@ -341,7 +339,7 @@ public class LalrState {
 			sym = trans.onSymbol;
 			int idx = sym.getIndex();
 			if (!sym.isNonTerm()) {
-				act = ParseActionTable.createActionCode(ParseActionTable.SHIFT, trans.toState.index());
+				act = ParseActionTable.createActionCode(ParseActionTable.SHIFT, trans.toState.getIndex());
 				/* if we don't already have an action put this one in */
 				if (our_act_row[idx] == ParseActionTable.ERROR) {
 					our_act_row[sym.getIndex()] = act;
@@ -407,9 +405,9 @@ public class LalrState {
 		/*
 		 * if both production and terminal have a precedence number, it can be fixed
 		 */
-		if (p.getLevel() > Assoc.NOPREC && term.getLevel() > Assoc.NOPREC) {
+		if (p.getPrecedence() > Assoc.NOPREC && term.getLevel() > Assoc.NOPREC) {
 
-			int compare = term.getLevel() - p.getLevel();
+			int compare = term.getLevel() - p.getPrecedence();
 			if (compare == 0)
 				compare = term.getAssociativity() - Assoc.NONASSOC;
 
@@ -436,7 +434,7 @@ public class LalrState {
 		LalrTransition tr;
 
 		/* dump the item set */
-		result.append("lalr_state [").append(index()).append("]: {\n");
+		result.append("lalr_state [").append(getIndex()).append("]: {\n");
 		for (Entry<LrItem, Lookaheads> itm : getItems().entrySet()) {
 			/* print the kernel first */
 			if (itm.getKey().getDotPosition() == 0)

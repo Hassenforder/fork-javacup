@@ -39,7 +39,6 @@ public class ParseReduceTable {
 		return table;
 	}
 
-	/** How many rows/states in the machine/table. */
 	public int getStateCount() {
 		return stateCount;
 	}
@@ -91,7 +90,7 @@ public class ParseReduceTable {
 			int base = row.base;
 			compressed[row.index] = (short) base;
 			for (int j = 0; j < row.comb.length; j++) {
-				compressed[base + row.comb[j]] = (short) table[row.index][row.comb[j]].index();
+				compressed[base + row.comb[j]] = (short) table[row.index][row.comb[j]].getIndex();
 			}
 		}
 		return compressed;
@@ -113,7 +112,7 @@ public class ParseReduceTable {
 				/* if it has action in it, print it */
 				if (goto_st != null) {
 					result.append(" [non term ").append(col).append("->");
-					result.append("state ").append(goto_st.index()).append("]");
+					result.append("state ").append(goto_st.getIndex()).append("]");
 
 					/* end the line after the 3rd one */
 					cnt++;

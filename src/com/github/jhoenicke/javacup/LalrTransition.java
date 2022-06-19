@@ -41,7 +41,7 @@ public class LalrTransition {
 	}
 
 	public String toString() {
-		return "transition on " + onSymbol.getName() + " to state [" + toState.index() + "]";
+		return "transition on " + onSymbol.getName() + " to state [" + toState.getIndex() + "]";
 	}
 
 }

@@ -474,7 +474,7 @@ public class Grammar {
 	 */
 	public void reportReduceReduceConflict(LalrState state, Entry<LrItem, Lookaheads> itm1, Entry<LrItem, Lookaheads> itm2) {
 		StringBuilder message = new StringBuilder();
-		message.append("*** Reduce/Reduce conflict found in state #").append(state.index()).append("\n")
+		message.append("*** Reduce/Reduce conflict found in state #").append(state.getIndex()).append("\n")
 				.append("  between ").append(itm1.getKey().toString()).append("\n").append("  and     ")
 				.append(itm2.getKey().toString()).append("\n").append("  under symbols: {");
 		String comma = "";
@@ -500,7 +500,7 @@ public class Grammar {
 	public void reportShiftReduceConflict(LalrState state, Production p, GrammarSymbol conflict_sym) {
 		/* emit top part of message including the reduce item */
 		StringBuilder message = new StringBuilder();
-		message.append("*** Shift/Reduce conflict found in state #").append(state.index()).append("\n");
+		message.append("*** Shift/Reduce conflict found in state #").append(state.getIndex()).append("\n");
 		message.append("  between ").append(p).append("(*)\n");
 
 		/* find and report on all items that shift under our conflict symbol */

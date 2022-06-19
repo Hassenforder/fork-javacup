@@ -17,36 +17,25 @@ package com.github.jhoenicke.javacup;
  */
 
 public class Version {
+	
 	/** The major version number. */
 	public static final int major = 1;
-
-	/* . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . */
 
 	/** The minor version number. */
 	public static final int minor = 3;
 
-	/* . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . */
-
 	/** The update letter. */
 	public static final String update = " 20220517";
 
-	/* . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . */
-
 	/** String for the current version. */
-	public static final String version_str = "" + major + "." + minor + update;
-
-	/* . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . */
+	public static final String version = "" + major + "." + minor + update;
 
 	/** Full title of the system */
-	public static final String title_str = "jh-javacup-" + version_str;
-
-	/* . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . */
+	public static final String title = "jh-javacup-" + version;
 
 	/** Name of the author */
-	public static final String author_str = "Scott E. Hudson, Frank Flannery, Andrea Flexeder, Michael Petter, C. Scott Ananian, Jochen Hoenicke and Michel Hassenforder";
-
-	/* . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . */
+	public static final String authors = "Scott E. Hudson, Frank Flannery, Andrea Flexeder, Michael Petter, C. Scott Ananian, Jochen Hoenicke and Michel Hassenforder";
 
 	/** The command name normally used to invoke this program */
-	public static final String program_name = "java -jar jh-javacup" + major + "." + minor + ".jar";
+	public static final String programName = "java -jar jh-javacup" + major + "." + minor + ".jar";
 }

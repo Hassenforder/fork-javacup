@@ -27,7 +27,7 @@ public class Production {
 	private final NonTerminal lhs;
 
 	/** The precedence of the rule */
-	private int rhsLevel = -1;
+	private int rhsPrecedence = -1;
 	private int rhsAssociation = -1;
 
 	/** A collection of parts for the right hand side. */
@@ -51,6 +51,10 @@ public class Production {
 	/** Nullability of the production (can it derive the empty string). */
 	private boolean nullable = false;
 
+	/**
+	 * Index of the result of the previous intermediate action on the
+	 *         stack relative to top, -1 if no previous action
+	 */
 	private int indexOfIntermediateResult;
 
 	/**
@@ -86,7 +90,7 @@ public class Production {
 	public Production(int index, int actionIndex, NonTerminal lhsSymbol, SymbolPart rhs[], int last_act_loc,
 			ActionPart action, Terminal precedence) {
 		if (precedence != null) {
-			rhsLevel = precedence.getLevel();
+			rhsPrecedence = precedence.getLevel();
 			rhsAssociation = precedence.getAssociativity();
 		}
 		this.lhs = lhsSymbol;
@@ -101,10 +105,10 @@ public class Production {
 			if (precedence == null && rhs_sym instanceof Terminal) {
 				Terminal term = (Terminal) rhs_sym;
 				if (term.getLevel() != Assoc.NOPREC) {
-					if (rhsLevel == Assoc.NOPREC) {
-						rhsLevel = term.getLevel();
+					if (rhsPrecedence == Assoc.NOPREC) {
+						rhsPrecedence = term.getLevel();
 						rhsAssociation = term.getAssociativity();
-					} else if (term.getLevel() != rhsLevel) {
+					} else if (term.getLevel() != rhsPrecedence) {
 						ErrorManager.getManager()
 								.emit_error("Production " + this + " has more than one precedence symbol");
 					}
@@ -116,18 +120,32 @@ public class Production {
 		lhsSymbol.addProduction(this);
 	}
 
-	/** The left hand side non-terminal. */
-	public NonTerminal lhs() {
+	public NonTerminal getLhs() {
 		return lhs;
 	}
 
-	/** Access to the precedence of the rule */
-	public int getLevel() {
-		return rhsLevel;
+	public int getPrecedence() {
+		return rhsPrecedence;
 	}
 
 	public int getAssociativity() {
 		return rhsAssociation;
+	}
+
+	public ActionPart getAction() {
+		return action;
+	}
+
+	public int getIndex() {
+		return index;
+	}
+
+	public int getActionIndex() {
+		return actionIndex;
+	}
+
+	public int getIndexOfIntermediateResult() {
+		return indexOfIntermediateResult;
 	}
 
 	/** Access to the collection of parts for the right hand side. */
@@ -145,37 +163,11 @@ public class Production {
 		return rhs.length;
 	}
 
-	/**
-	 * An action_part containing code for the action to be performed when we reduce
-	 * with this production.
-	 */
-	public ActionPart getAction() {
-		return action;
-	}
-
-	/** Index number of the production. */
-	public int index() {
-		return index;
-	}
-
-	/** Index number of the action for this production. */
-	public int getActionIndex() {
-		return actionIndex;
-	}
-
 	/** Index number of the production. */
 	public LrItem getItem() {
 		if (lrItem == null)
 			lrItem = new LrItem(this);
 		return lrItem;
-	}
-
-	/**
-	 * @return the index of the result of the previous intermediate action on the
-	 *         stack relative to top, -1 if no previous action
-	 */
-	public int getIndexOfIntermediateResult() {
-		return indexOfIntermediateResult;
 	}
 
 	/**
@@ -234,7 +226,7 @@ public class Production {
 	public String toString() {
 		StringBuilder result = new StringBuilder();
 
-		result.append(lhs().getName()).append(" ::= ");
+		result.append(getLhs().getName()).append(" ::= ");
 		for (int i = 0; i < getRhsSize(); i++) {
 			GrammarSymbol s = getRhsAt(i).getSymbol();
 			// MH 07/07/2022 the_symbol can be null if a terminal is not declared

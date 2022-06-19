@@ -55,17 +55,14 @@ public abstract class GrammarSymbol implements Comparable<GrammarSymbol> {
 		this.useCount = 0;
 	}
 
-	/** String for the human readable name of the symbol. */
 	public String getName() {
 		return name;
 	}
 
-	/** String for the type of object used for the symbol on the parse stack. */
 	public String getType() {
 		return type;
 	}
 
-	/** Count of how many times the symbol appears in productions. */
 	public int getUseCount() {
 		return useCount;
 	}
@@ -75,20 +72,9 @@ public abstract class GrammarSymbol implements Comparable<GrammarSymbol> {
 		useCount++;
 	}
 
-	/**
-	 * Index of this symbol (terminal or non terminal) in the parse tables. Note:
-	 * indexes are unique among terminals and unique among non terminals, however, a
-	 * terminal may have the same index as a non-terminal, etc.
-	 */
 	public int getIndex() {
 		return index;
 	}
-
-	/**
-	 * Indicate if this is a non-terminal. Here in the base class we don't know, so
-	 * this is abstract.
-	 */
-	public abstract boolean isNonTerm();
 
 	public NonTerminal getStarSymbol() {
 		return starSymbol;
@@ -113,6 +99,12 @@ public abstract class GrammarSymbol implements Comparable<GrammarSymbol> {
 	public void setOptSymbol(NonTerminal optSymbol) {
 		this.optSymbol = optSymbol;
 	}
+
+	/**
+	 * Indicate if this is a non-terminal. Here in the base class we don't know, so
+	 * this is abstract.
+	 */
+	public abstract boolean isNonTerm();
 
 	public int compareTo(GrammarSymbol other) {
 		/* non terminals are larger than terminals */

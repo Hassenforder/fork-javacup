@@ -189,7 +189,7 @@ public class Main {
 	 */
 	private void usage() {
 		System.err.println();
-		System.err.println("Usage: " + Version.program_name + " [options] [filename]\n"
+		System.err.println("Usage: " + Version.programName + " [options] [filename]\n"
 				+ "  and expects a specification file on standard input if no filename is given.\n"
 				+ "  Legal options include:\n"
 				+ "    -package name  specify package generated classes go in [default none]\n"
@@ -243,7 +243,7 @@ public class Main {
 					return 1;
 				}
 			} else if (argv[i].equals("-version")) {
-				System.out.println(Version.title_str);
+				System.out.println(Version.title);
 				return 1;
 			} else if (option.startsWith("-")) {
 				if (!options.setOption(option.substring(1))) {
@@ -543,7 +543,7 @@ public class Main {
 	 */
 	private void emit_summary(Grammar grammar, boolean output_produced) {
 
-		System.err.println("------- " + Version.title_str + " Parser Generation Summary -------");
+		System.err.println("------- " + Version.title + " Parser Generation Summary -------");
 
 		/* error and warning count */
 		System.err.println("  " + ErrorManager.getManager().getErrorCount() + " error"
@@ -582,7 +582,7 @@ public class Main {
 		if (options.opt_show_timing)
 			show_times();
 
-		System.err.println("---------------------------------------------------- (" + Version.version_str + ")");
+		System.err.println("---------------------------------------------------- (" + Version.version + ")");
 	}
 
 	/* . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . */

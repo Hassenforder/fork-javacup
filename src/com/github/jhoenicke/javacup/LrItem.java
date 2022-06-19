@@ -119,7 +119,7 @@ public class LrItem implements Comparable<LrItem> {
 	 */
 	public int compareTo(LrItem item) {
 		if (production != item.production)
-			return production.index() - item.production.index();
+			return production.getIndex() - item.production.getIndex();
 		return dotPosition - item.dotPosition;
 	}
 
@@ -181,7 +181,7 @@ public class LrItem implements Comparable<LrItem> {
 
 	public String toString() {
 		StringBuilder result = new StringBuilder();
-		result.append(production.lhs().getName());
+		result.append(production.getLhs().getName());
 		result.append(" ::= ");
 
 		for (int i = 0; i < production.getRhsSize(); i++) {
