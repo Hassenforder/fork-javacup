@@ -23,10 +23,10 @@ import java.util.Map.Entry;
  */
 public class Grammar {
 	
-	private final ArrayList<Terminal> terminals;
-	private final ArrayList<NonTerminal> nonterminals;
-	private final ArrayList<Production> productions;
-	private final ArrayList<Production> actions;
+	private final List<Terminal> terminals;
+	private final List<NonTerminal> nonterminals;
+	private final List<Production> productions;
+	private final List<Production> actions;
 
 	private Production startProduction;
 
@@ -40,10 +40,6 @@ public class Grammar {
 
 	/** Number of conflict found while building tables. */
 	private int conflictCount = 0;
-
-	/* . . . . . . . . . . . . . . . . . . . . . . . . . */
-	/* . . Internal Results of Generating the Parser . . */
-	/* . . . . . . . . . . . . . . . . . . . . . . . . . */
 
 	/** Resulting parse action table. */
 	private ParseActionTable actionTable;
@@ -89,6 +85,10 @@ public class Grammar {
 
 	public Production getStartProduction() {
 		return startProduction;
+	}
+
+	public Collection<LalrState> getLalrStates() {
+		return lalrStates;
 	}
 
 	public int getTerminalCount() {
@@ -345,11 +345,6 @@ public class Grammar {
 		return state;
 	}
 
-	/** Collection of all states. */
-	public Collection<LalrState> getLalrStates() {
-		return lalrStates;
-	}
-
 	/** Compute nullability of all non-terminals. */
 	public void computeNullability() {
 		boolean change = true;
@@ -460,7 +455,7 @@ public class Grammar {
 			/* remove a state from the work set */
 			LalrState st = lalrStates.get(i);
 			st.computeClosure(this);
-			st.compute_successors(this);
+			st.computeSuccessors(this);
 		}
 
 		return start_state;

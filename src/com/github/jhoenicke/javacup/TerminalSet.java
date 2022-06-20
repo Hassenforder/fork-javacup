@@ -11,6 +11,7 @@ public class TerminalSet {
 	
 	private final static int LOG_BITS_PER_UNIT = 6;
 	private final static int BITS_PER_UNIT = 64;
+	
 	private long[] elements;
 	private Grammar grammar;
 

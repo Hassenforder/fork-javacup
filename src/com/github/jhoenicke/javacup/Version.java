@@ -19,13 +19,13 @@ package com.github.jhoenicke.javacup;
 public class Version {
 	
 	/** The major version number. */
-	public static final int major = 1;
+	private static final int major = 1;
 
 	/** The minor version number. */
-	public static final int minor = 3;
+	private static final int minor = 3;
 
 	/** The update letter. */
-	public static final String update = " 20220517";
+	private static final String update = " 20220622";
 
 	/** String for the current version. */
 	public static final String version = "" + major + "." + minor + update;

@@ -67,11 +67,6 @@ public abstract class GrammarSymbol implements Comparable<GrammarSymbol> {
 		return useCount;
 	}
 
-	/** Increment the use count. */
-	public void incrementUseCount() {
-		useCount++;
-	}
-
 	public int getIndex() {
 		return index;
 	}
@@ -100,12 +95,23 @@ public abstract class GrammarSymbol implements Comparable<GrammarSymbol> {
 		this.optSymbol = optSymbol;
 	}
 
+	/** Increment the use count. */
+	public void incrementUseCount() {
+		useCount++;
+	}
+
 	/**
 	 * Indicate if this is a non-terminal. Here in the base class we don't know, so
 	 * this is abstract.
 	 */
 	public abstract boolean isNonTerm();
-
+	
+	/**
+	 * comparator between two GrammarSymbols
+	 * < 0   Terminal
+	 * > 0   NonTerminal
+	 * == 0  Same
+	 */
 	public int compareTo(GrammarSymbol other) {
 		/* non terminals are larger than terminals */
 		if (isNonTerm() != other.isNonTerm())

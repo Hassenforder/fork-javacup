@@ -6,7 +6,6 @@
 
 package com.github.jhoenicke.javacup;
 
-import com.github.jhoenicke.javacup.runtime.*;
 import java.util.HashMap;
 import java.util.ArrayList;
 import java.util.Arrays;

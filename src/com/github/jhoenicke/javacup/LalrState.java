@@ -2,6 +2,7 @@
 package com.github.jhoenicke.javacup;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 import java.util.TreeMap;
@@ -166,9 +167,9 @@ public class LalrState {
 		}
 	}
 
-	public void compute_successors(Grammar grammar) {
+	public void computeSuccessors(Grammar grammar) {
 		/* gather up all the symbols that appear before dots */
-		TreeMap<GrammarSymbol, ArrayList<LrItem>> outgoing = new TreeMap<GrammarSymbol, ArrayList<LrItem>>();
+		Map<GrammarSymbol, List<LrItem>> outgoing = new TreeMap<>();
 		for (LrItem itm : items.keySet()) {
 			/* add the symbol after the dot (if any) to our collection */
 			GrammarSymbol sym = itm.getSymbolAfterDotPosition();
@@ -185,7 +186,7 @@ public class LalrState {
 			 * gather up shifted versions of all the items that have this symbol before the
 			 * dot
 			 */
-			TreeMap<LrItem, TerminalSet> new_items = new TreeMap<LrItem, TerminalSet>();
+			Map<LrItem, TerminalSet> new_items = new TreeMap<>();
 
 			/* find proxy symbols on the way */
 			ArrayList<GrammarSymbol> proxySymbols = new ArrayList<GrammarSymbol>();
@@ -405,9 +406,9 @@ public class LalrState {
 		/*
 		 * if both production and terminal have a precedence number, it can be fixed
 		 */
-		if (p.getPrecedence() > Assoc.NOPREC && term.getLevel() > Assoc.NOPREC) {
+		if (p.getPrecedence() > Assoc.NOPREC && term.getPrecedence() > Assoc.NOPREC) {
 
-			int compare = term.getLevel() - p.getPrecedence();
+			int compare = term.getPrecedence() - p.getPrecedence();
 			if (compare == 0)
 				compare = term.getAssociativity() - Assoc.NONASSOC;
 

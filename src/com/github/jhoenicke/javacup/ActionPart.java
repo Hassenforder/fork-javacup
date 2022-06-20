@@ -26,18 +26,16 @@ public class ActionPart extends ProductionPart {
 		this.code = code;
 	}
 
-	/** String containing code for the action in question. */
 	public String getCode() {
 		return code;
 	}
 
-	public void addCode(String moreCode) {
-		code += moreCode;
-	}
-
-	/** Set the code string. */
 	public void setCode(String code) {
 		this.code = code;
+	}
+
+	public void addCode(String moreCode) {
+		code += moreCode;
 	}
 
 	public String toString() {

@@ -12,6 +12,7 @@ package com.github.jhoenicke.javacup;
 
 public class ActionProduction extends Production {
 
+	/** index of the action in the rhs of a production */
 	private int indexOfAction;
 
 	/** The production we were taken out of. */
@@ -35,12 +36,13 @@ public class ActionProduction extends Production {
 		this.indexOfAction = indexOfAction;
 	}
 
-	public int getRhsStackDepth() {
-		return indexOfAction;
-	}
-
 	public Production getBaseProduction() {
 		return baseProduction;
 	}
 	
+	/** indexOfAction but more readable */
+	public int getRhsStackDepth() {
+		return indexOfAction;
+	}
+
 }

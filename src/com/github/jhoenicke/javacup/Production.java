@@ -90,7 +90,7 @@ public class Production {
 	public Production(int index, int actionIndex, NonTerminal lhsSymbol, SymbolPart rhs[], int last_act_loc,
 			ActionPart action, Terminal precedence) {
 		if (precedence != null) {
-			rhsPrecedence = precedence.getLevel();
+			rhsPrecedence = precedence.getPrecedence();
 			rhsAssociation = precedence.getAssociativity();
 		}
 		this.lhs = lhsSymbol;
@@ -104,11 +104,11 @@ public class Production {
 				rhs_sym.incrementUseCount();
 			if (precedence == null && rhs_sym instanceof Terminal) {
 				Terminal term = (Terminal) rhs_sym;
-				if (term.getLevel() != Assoc.NOPREC) {
+				if (term.getPrecedence() != Assoc.NOPREC) {
 					if (rhsPrecedence == Assoc.NOPREC) {
-						rhsPrecedence = term.getLevel();
+						rhsPrecedence = term.getPrecedence();
 						rhsAssociation = term.getAssociativity();
-					} else if (term.getLevel() != rhsPrecedence) {
+					} else if (term.getPrecedence() != rhsPrecedence) {
 						ErrorManager.getManager()
 								.emit_error("Production " + this + " has more than one precedence symbol");
 					}
@@ -175,7 +175,7 @@ public class Production {
 	 * nullable if its RHS could derive the empty string. This results when the RHS
 	 * is empty or contains only non terminals which themselves are nullable.
 	 */
-	public boolean check_nullable() {
+	public boolean checkNullable() {
 		/* if we already know bail out early */
 		if (nullableKnown)
 			return nullable;

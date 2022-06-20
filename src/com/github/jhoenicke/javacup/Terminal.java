@@ -11,7 +11,13 @@ package com.github.jhoenicke.javacup;
  */
 public class Terminal extends GrammarSymbol {
 
-	private int level;
+	/** Special terminal for end of input. */
+	public static Terminal EOF = new Terminal("EOF", 1);
+
+	/** special terminal used for error recovery */
+	public static Terminal error = new Terminal("error", 0);
+
+	private int precedence;
 	private int associativity;
 
 	/**
@@ -23,9 +29,9 @@ public class Terminal extends GrammarSymbol {
 	 * @param level the level of the priority for the terminal.
 	 * @param index the index of the terminal.
 	 */
-	public Terminal(String name, String type, int associativity, int level, int index) {
+	public Terminal(String name, String type, int associativity, int precedence, int index) {
 		super(name, type, index);
-		this.level = level;
+		this.precedence = precedence;
 		this.associativity = associativity;
 	}
 
@@ -51,30 +57,22 @@ public class Terminal extends GrammarSymbol {
 		this(name, null, index);
 	}
 
-	/** Special terminal for end of input. */
-	public static Terminal EOF = new Terminal("EOF", 1);
-
-	/** special terminal used for error recovery */
-	public static Terminal error = new Terminal("error", 0);
-
-	/** Report this symbol as not being a non-terminal. */
-	public boolean isNonTerm() {
-		return false;
-	}
-
-	/** get the precedence level of a terminal */
-	public int getLevel() {
-		return level;
+	public int getPrecedence() {
+		return precedence;
 	}
 
 	public int getAssociativity() {
 		return associativity;
 	}
 
-	/** set the precedence of a terminal */
 	public void setPrecedence(int associativity, int level) {
 		this.associativity = associativity;
-		this.level = level;
+		this.precedence = level;
+	}
+
+	/** Report this symbol as not being a non-terminal. */
+	public boolean isNonTerm() {
+		return false;
 	}
 
 	public String toString() {

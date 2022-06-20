@@ -2,6 +2,7 @@ package com.github.jhoenicke.javacup;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 /**
  * This class represents a non-terminal symbol in the grammar. Each non terminal
@@ -16,7 +17,7 @@ import java.util.Collection;
 public class NonTerminal extends GrammarSymbol {
 
 	/** Table of all productions with this non terminal on the LHS. */
-	private ArrayList<Production> productions = null;
+	private List<Production> productions = null;
 
 	/** Nullability of this non terminal. */
 	private boolean nullable;
@@ -45,7 +46,19 @@ public class NonTerminal extends GrammarSymbol {
 		this(name, null, index);
 	}
 
-	/** Access to productions with this non terminal on the LHS. */
+	public boolean isNullable() {
+		return nullable;
+	}
+
+	public TerminalSet getFirsts() {
+		return firsts;
+	}
+
+	public void setFirsts(TerminalSet firsts) {
+		this.firsts = firsts;
+	}
+
+	/** Lazy access to productions with this non terminal on the LHS. */
 	public Collection<Production> getProductions() {
 		if (productions == null) productions = new ArrayList<Production>();
 		return productions;
@@ -65,21 +78,6 @@ public class NonTerminal extends GrammarSymbol {
 		getProductions().add(production);
 	}
 
-	/** Nullability of this non terminal. */
-	public boolean isNullable() {
-		return nullable;
-	}
-
-	/** First set for this non-terminal. */
-	public TerminalSet getFirsts() {
-		return firsts;
-	}
-
-	public void setFirsts(TerminalSet firsts) {
-		this.firsts = firsts;
-	}
-
-	/** Indicate that this symbol is a non-terminal. */
 	public boolean isNonTerm() {
 		return true;
 	}
@@ -97,7 +95,7 @@ public class NonTerminal extends GrammarSymbol {
 		/* look and see if any of the productions now look nullable */
 		for (Production prod : getProductions()) {
 			/* if the production can go to empty, we are nullable */
-			if (prod.check_nullable()) {
+			if (prod.checkNullable()) {
 				nullable = true;
 				return true;
 			}
@@ -107,7 +105,6 @@ public class NonTerminal extends GrammarSymbol {
 		return false;
 	}
 
-	/** convert to string */
 	public String toString() {
 		return super.toString() + "[" + getIndex() + "]" + (isNullable() ? "*" : "");
 	}
