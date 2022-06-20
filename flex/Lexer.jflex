@@ -73,6 +73,8 @@ ident = ([:jletter:] | "_" ) ([:jletterdigit:] | [:jletter:] | "_" )*
   "|"           { return symbol("BAR",BAR);                    }
   "["           { return symbol("LBRACK",LBRACK);              }
   "]"           { return symbol("RBRACK",RBRACK);              }
+  "("           { return symbol("LPARENT",LPARENT);            }
+  ")"           { return symbol("RPARENT",RPARENT);            }
   ":"           { return symbol("COLON",COLON);                }
   "="           { return symbol("EQUALS",EQUALS);              }
   "::="         { return symbol("COLON_COLON_EQUALS",COLON_COLON_EQUALS);   }

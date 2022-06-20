@@ -190,7 +190,7 @@ parser code {:
 
 terminal
   SEMI, COMMA, STAR, DOT, COLON, COLON_COLON_EQUALS, BAR, 
-  PERCENT_PREC, LBRACK, RBRACK, GT, LT, QUESTION, EQUALS, PLUS;
+  PERCENT_PREC, LBRACK, RBRACK, LPARENT, RPARENT, GT, LT, QUESTION, EQUALS, PLUS;
 
 terminal String
   PACKAGE, IMPORT, CODE, ACTION, PARSER, TERMINAL, NON, NONTERMINAL, INIT, 
@@ -530,6 +530,14 @@ wild_symbol_id ::=
            RESULT = symb; 
          }
     :}
+    |
+    LPARENT prod_part+:prod RPARENT
+    {:
+	      ArrayList<ProductionPart> rhs_list = 
+	      	new ArrayList<ProductionPart>(prod.length);
+	      rhs_list.addAll(Arrays.asList(prod));
+    	RESULT = grammar.getParenthesisSymbol(rhs_list);
+	:}
     ;
 
 label_id ::=

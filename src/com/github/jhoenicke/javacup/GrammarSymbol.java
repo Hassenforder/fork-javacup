@@ -121,7 +121,14 @@ public abstract class GrammarSymbol implements Comparable<GrammarSymbol> {
 	}
 
 	public String toString() {
-		return getName();
+		StringBuilder tmp = new StringBuilder();
+		tmp.append(getName());
+		if (getType() != null) {
+			tmp.append("<");
+			tmp.append(getType());
+			tmp.append(">");			
+		}
+		return tmp.toString();
 	}
 
 }

@@ -30,6 +30,8 @@ public class Grammar {
 
 	private Production startProduction;
 
+	private int parenthesisCounter = 0;
+	
 	/**
 	 * Hash table to find states by their kernels (i.e, the original, unclosed, set
 	 * of items -- which uniquely define the state). This table stores state objects
@@ -162,6 +164,36 @@ public class Grammar {
 			sym.setOptSymbol(addNonterminal(sym.getName() + "$0_1", sym.getType()));
 		}
 		return sym.getOptSymbol();
+	}
+
+	private SymbolPart findUniqSymbolWithLabel (List<ProductionPart> production) {
+		SymbolPart uniq = null;
+		int count = 0;
+		for (ProductionPart part : production) {
+			if (part instanceof SymbolPart) {
+				SymbolPart symbol = (SymbolPart) part;
+				if (symbol.getLabel() != null) {
+					if (count == 0) {
+						uniq = symbol;
+					} else {
+						ErrorManager.getManager().emit_error("too many labels in parenthesis");
+					}
+					++count;
+				}
+			}			
+		}
+		if (count == 1) return uniq;
+		return null;
+	}
+
+	public NonTerminal getParenthesisSymbol(List<ProductionPart> production) {
+		// extract the type from the first labeled production part
+		SymbolPart symbol = findUniqSymbolWithLabel(production);
+		String type = null;
+		if (symbol != null) type = symbol.getSymbol().getType();
+		NonTerminal lhs_nt = addNonterminal("$parenthesis"+(++parenthesisCounter), type);
+		buildProduction(lhs_nt, production, null);
+		return lhs_nt;
 	}
 
 	/** set start non terminal symbol */

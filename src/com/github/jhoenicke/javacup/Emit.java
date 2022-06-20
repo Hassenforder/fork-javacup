@@ -848,8 +848,11 @@ public class Emit {
 		dump_file.println("===== Terminals =====");
 		int cnt = 0;
 		for (Terminal t : grammar.terminals()) {
-			dump_file.print("[" + t.getIndex() + "]" + t.getName() + " ");
-			if ((++cnt) % 5 == 0)
+			dump_file.print("[" + t.getIndex() + "]" + t.getName());
+			if (t.getType() != null) 
+				dump_file.print("<" + t.getType() + ">");
+			dump_file.print(" ");				
+			if ((++cnt) % 4 == 0)
 				dump_file.println();
 		}
 		dump_file.println();
@@ -858,8 +861,11 @@ public class Emit {
 		dump_file.println("===== Non terminals =====");
 		cnt = 0;
 		for (NonTerminal nt : grammar.non_terminals()) {
-			dump_file.print("[" + nt.getIndex() + "]" + nt.getName() + " ");
-			if ((++cnt) % 5 == 0)
+			dump_file.print("[" + nt.getIndex() + "]" + nt.getName());
+			if (nt.getType() != null) 
+				dump_file.print("<" + nt.getType() + ">");
+			dump_file.print(" ");				
+			if ((++cnt) % 4 == 0)
 				dump_file.println();
 		}
 		dump_file.println();
