@@ -104,6 +104,9 @@ public class Options {
 	 */
 	public boolean opt_old_lr_values = true;
 
+	/** User option -- use List for wildcard generation*/
+	public boolean use_list = false;
+
 	/**
 	 * User option -- should generator suppress references to
 	 * com.github.jhoenicke.javacup.runtime.Scanner for compatibility with old
@@ -268,6 +271,10 @@ public class Options {
 		if (option.equals("enum")) {
 			opt_java15 = true;
 			symType = SymType.ENUM;
+			return true;
+		}
+		if (option.equals("uselist")) {
+			use_list = true;
 			return true;
 		}
 		if (option.equals("noscanner")) {

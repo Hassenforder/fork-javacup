@@ -134,6 +134,20 @@
 	    </java>  
 	  </target>
 
+	  <target name="test-test" depends="dist">
+	    <java jar="${dist}/${jar}.jar" fork="true">
+	        <arg value="-destdir"/>
+	        <arg value="${test}"/>
+	    	<arg value="-newpositions"/>
+	    	<arg value="-dump_grammar"/>
+	    	<arg value="-dump_states"/>
+	    	<arg value="-dump_tables"/>
+	    	<arg value="-uselist"/>
+	    	<arg value="-enum"/>
+	        <arg value="${test}/test.cup" />
+	    </java>  
+	  </target>
+
   <target name="javadoc">
     <javadoc access="protected" author="true"
 	     classpath="${bootstrap}"

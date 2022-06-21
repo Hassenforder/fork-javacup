@@ -379,18 +379,24 @@ public class Emit {
 						int arraySuffix = basetype.length();
 						while (basetype.charAt(arraySuffix - 2) == '[')
 							arraySuffix -= 2;
-						String listtype = "java.util.ArrayList";
-						String cast = "";
-						if (options.opt_java15)
-							listtype += "<" + basetype + ">";
-						else
-							cast = "(" + symtype + ") ";
-						String symbollist = pre("list$" + label);
-						out.println("              " + listtype + " " + symbollist + " = (" + listtype + ") " + label
-								+ "$.value;");
-						out.println("              " + symtype + " " + label + " = " + cast + symbollist + ".toArray("
-								+ "new " + basetype.substring(0, arraySuffix) + "[" + symbollist + ".size()]"
-								+ basetype.substring(arraySuffix) + ");");
+						if (options.use_list) {
+							String listtype = "java.util.List" + "<" + basetype + ">";
+							out.println("              " + listtype + " " + label + " = (" + listtype + ") " + label
+									+ "$.value;");
+						} else {
+							String listtype = "java.util.ArrayList";
+							String cast = "";
+							if (options.opt_java15)
+								listtype += "<" + basetype + ">";
+							else
+								cast = "(" + symtype + ") ";
+							String symbollist = pre("list$" + label);
+							out.println("              " + listtype + " " + symbollist + " = (" + listtype + ") " + label
+									+ "$.value;");
+							out.println("              " + symtype + " " + label + " = " + cast + symbollist + ".toArray("
+									+ "new " + basetype.substring(0, arraySuffix) + "[" + symbollist + ".size()]"
+									+ basetype.substring(arraySuffix) + ");");
+						}
 					} else {
 						out.println("              " + symtype + " " + label + " = (" + symtype + ") " + label
 								+ "$.value;");
