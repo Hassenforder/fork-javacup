@@ -143,8 +143,6 @@ public class Grammar {
 
 	public NonTerminal getStarSymbol(GrammarSymbol sym) {
 		if (sym.getStarSymbol() == null) {
-			/* create plus symbol as * is defined via +. */
-			getPlusSymbol(sym);
 			String type = sym.getType() == null ? null : sym.getType() + "[]";
 			sym.setStarSymbol(addNonterminal(sym.getName() + "$0_many", type));
 		}
@@ -578,50 +576,113 @@ public class Grammar {
 		}
 	}
 
-	public void addStarProduction(NonTerminal lhs, NonTerminal sym_star, GrammarSymbol sym) {
+	/**
+	 * Build a left recursive loop in bnf
+	 * XXXs ::= ???
+	 *      |	XXXs:l	XXX:v	{: RESULT = l; RESULT.add(v); :}
+	 *      ;
+	 *        
+	 *  Actions are not yet generated as according to the java level they can be different
+	 *  So
+	 *     ???	depends on + or * operator and it is not processed by this method
+	 *     RESULT = l; RESULT.add(v) is modeled by constant CUP$STAR2
+	 * 
+	 * @param lhs
+	 * @param sym_star
+	 * @param sym
+	 */
+	private void buildRepeatProduction(NonTerminal lhs, GrammarSymbol sym) {
 		ArrayList<ProductionPart> rhs = new ArrayList<ProductionPart>(2);
-		rhs.add(new SymbolPart(sym_star));
+		rhs.add(new SymbolPart(lhs));
 		rhs.add(new SymbolPart(sym));
 		if (sym.getType() != null)
 			rhs.add(new ActionPart("CUP$STAR2"));
 		buildProduction(lhs, rhs, null);
 	}
 
-	public void replaceWildcardRules(GrammarSymbol sym) {
+	/**
+	 * Replace an option rule XXX? by it equivalent in bnf
+	 * XXXOpt ::= 			{: RESULT = null; :}
+	 *        |		XXX:v	{: RESULT = v; :}
+	 *        ;
+	 *        
+	 * @param symbol
+	 */
+	private void replaceOptionRule (GrammarSymbol symbol) {
+
+		if (symbol.getOptSymbol() == null) return;
+
 		ArrayList<ProductionPart> rhs;
-		if (sym.getOptSymbol() != null) {
-			rhs = new ArrayList<ProductionPart>(1);
-			if (sym.getType() != null)
-				rhs.add(new ActionPart("RESULT=null;"));
-			buildProduction(sym.getOptSymbol(), rhs, null);
+		
+		rhs = new ArrayList<ProductionPart>(1);
+		if (symbol.getType() != null)
+			rhs.add(new ActionPart("RESULT=null;"));
+		buildProduction(symbol.getOptSymbol(), rhs, null);
 
-			rhs = new ArrayList<ProductionPart>(1);
-			rhs.add(new SymbolPart(sym));
-			buildProduction(sym.getOptSymbol(), rhs, null);
-		}
+		rhs = new ArrayList<ProductionPart>(1);
+		rhs.add(new SymbolPart(symbol));
+		buildProduction(symbol.getOptSymbol(), rhs, null);
+	}
 
-		if (sym.getStarSymbol() != null) {
-			assert sym.getPlusSymbol() != null;
-			rhs = new ArrayList<ProductionPart>(1);
-			if (sym.getType() != null)
-				rhs.add(new ActionPart("CUP$STAR0"));
-			buildProduction(sym.getStarSymbol(), rhs, null);
+	/**
+	 * Replace a 0 to many repetition rule XXX* by it equivalent in bnf
+	 * XXXs ::= 				{: RESULT = new ArrayList(); :}
+	 *      |	XXXs:l	XXX:v	{: RESULT = l; RESULT.add(v); :}
+	 *      ;
+	 *        
+	 *  Actions are not yet generated as according to the java level they can be different
+	 *  So
+	 *     RESULT = new ArrayList(); is modeled by constant CUP$STAR0
+	 *     repetition is built by buildRepeatProduction
+	 *  
+	 * @param symbol
+	 */
+	private void replaceStarRule (GrammarSymbol symbol) {
 
-			rhs = new ArrayList<ProductionPart>(1);
-			rhs.add(new SymbolPart(sym.getPlusSymbol()));
-			buildProduction(sym.getStarSymbol(), rhs, null);
-		}
+		if (symbol.getStarSymbol() == null) return;
 
-		if (sym.getPlusSymbol() != null) {
-			rhs = new ArrayList<ProductionPart>(1);
-			rhs.add(new SymbolPart(sym));
-			if (sym.getType() != null)
-				rhs.add(new ActionPart("CUP$STAR1"));
-			buildProduction(sym.getPlusSymbol(), rhs, null);
+		ArrayList<ProductionPart> rhs;
 
-			addStarProduction(sym.getPlusSymbol(), sym.getPlusSymbol(), sym);
-		}
+		rhs = new ArrayList<ProductionPart>(1);
+		if (symbol.getType() != null)
+			rhs.add(new ActionPart("CUP$STAR0"));
+		buildProduction(symbol.getStarSymbol(), rhs, null);
 
+		buildRepeatProduction (symbol.getStarSymbol(), symbol);
+	}
+
+	/**
+	 * Replace a 1 to many repetition rule XXX+ by it equivalent in bnf
+	 * XXXs ::= XXX:v			{: RESULT = new ArrayList(); RESULT.add(v); :}
+	 *      |	XXXs:l	XXX:v	{: RESULT = l; RESULT.add(v); :}
+	 *      ;
+	 *      
+	 *  Actions are not yet generated as according to the java level they can be different
+	 *  So
+	 *     RESULT = new ArrayList(); RESULT.add(v); is modeled by constant CUP$STAR1
+	 *     repetition is built by buildRepeatProduction
+	 *        
+	 * @param symbol
+	 */
+	private void replacePlusRule (GrammarSymbol symbol) {
+		
+		if (symbol.getPlusSymbol() == null) return;
+
+		ArrayList<ProductionPart> rhs;
+
+		rhs = new ArrayList<ProductionPart>(2);
+		rhs.add(new SymbolPart(symbol));
+		if (symbol.getType() != null)
+			rhs.add(new ActionPart("CUP$STAR1"));
+		buildProduction(symbol.getPlusSymbol(), rhs, null);
+
+		buildRepeatProduction (symbol.getPlusSymbol(), symbol);
+	}
+
+	public void replaceWildcardRules(GrammarSymbol symbol) {
+		replaceOptionRule (symbol);
+		replaceStarRule (symbol);
+		replacePlusRule (symbol);
 	}
 
 	public void replaceWildcardRules() {

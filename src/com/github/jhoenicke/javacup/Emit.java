@@ -95,10 +95,10 @@ public class Emit {
 	private Timer timer;
 
 	/** The package name of javacup's runtime. */
-	public final static String RUNTIME_PACKAGE = "com.github.jhoenicke.javacup.runtime";
+	private final static String RUNTIME_PACKAGE = "com.github.jhoenicke.javacup.runtime";
 
 	/** The prefix placed on names that pollute someone else's name space. */
-	public final static String prefix = "CUP$";
+	private final static String prefix = "CUP$";
 
 	public Emit(Options options, Timer timer) {
 		super();
@@ -128,7 +128,7 @@ public class Emit {
 	 * 
 	 * @param out stream to produce output on.
 	 */
-	protected void emit_package(PrintWriter out) {
+	protected void emitPackage(PrintWriter out) {
 		/* generate a package spec if we have a name for one */
 		if (options.package_name != null) {
 			out.println("package " + options.package_name + ";");
@@ -136,7 +136,7 @@ public class Emit {
 		}
 	}
 
-	public String stackelem(int index, boolean is_java15) {
+	public String stackElement(int index, boolean is_java15) {
 		String access = pre("stack") + ".get(" + pre("size") + " - " + index + ")";
 		return is_java15 ? access : "((" + RUNTIME_PACKAGE + ".Symbol) " + access + ")";
 	}
@@ -173,7 +173,7 @@ public class Emit {
 		out.println("// " + new Date());
 		out.println("//----------------------------------------------------");
 		out.println();
-		emit_package(out);
+		emitPackage(out);
 
 		/* class header */
 		out.println("/** CUP generated " + type + " containing symbol constants. */");
@@ -241,7 +241,7 @@ public class Emit {
 		out.println("// " + new Date());
 		out.println("//----------------------------------------------------");
 		out.println();
-		emit_package(out);
+		emitPackage(out);
 
 		/* class header */
 		out.println("/** CUP generated " + type + " containing terminal constants. */");
@@ -292,7 +292,7 @@ public class Emit {
 		out.println("// " + new Date());
 		out.println("//----------------------------------------------------");
 		out.println();
-		emit_package(out);
+		emitPackage(out);
 
 		/* class header */
 		out.println("/** CUP generated " + type + " containing nonterminal constants. */");
@@ -314,7 +314,7 @@ public class Emit {
 		timer.popTimer(Timer.TIMESTAMP.symbols_time);
 	}
 
-	private void emit_action(PrintWriter out, Grammar grammar, Production prod, Options options) {
+	private void emitAction(PrintWriter out, Grammar grammar, Production prod, Options options) {
 		boolean is_star_action = prod.getAction() != null && prod.getAction().getCode().startsWith("CUP$STAR");
 		String result = "";
 		if (prod.getLhs().getType() != null && !is_star_action) {
@@ -322,7 +322,7 @@ public class Emit {
 			String init_result = "";
 			if (lastResult != -1) {
 				init_result = " = (" + prod.getLhs().getType() + ") "
-						+ stackelem(prod.getRhsStackDepth() - lastResult, options.opt_java15) + ".value";
+						+ stackElement(prod.getRhsStackDepth() - lastResult, options.opt_java15) + ".value";
 			} else if (prod instanceof ActionProduction) {
 				init_result = " = null";
 			}
@@ -357,7 +357,7 @@ public class Emit {
 					&& (symbol.getSymbol().getName().endsWith("$0_many") || symbol.getSymbol().getName().endsWith("$1_many"));
 			if (options.after_reduce_code != null) {
 				out.println("              " + pre("symbols_array") + "[" + i + "] = "
-						+ stackelem(prod.getRhsStackDepth() - i, options.opt_java15) + ";");
+						+ stackElement(prod.getRhsStackDepth() - i, options.opt_java15) + ";");
 			}
 			if (label != null) {
 				if (i == 0)
@@ -366,7 +366,7 @@ public class Emit {
 					rightsym = label + "$";
 
 				out.println("              " + RUNTIME_PACKAGE + ".Symbol " + label + "$ = "
-						+ stackelem(prod.getRhsStackDepth() - i, options.opt_java15) + ";");
+						+ stackElement(prod.getRhsStackDepth() - i, options.opt_java15) + ";");
 
 				/* Put in the left/right value labels */
 				if (options.opt_old_lr_values) {
@@ -417,23 +417,38 @@ public class Emit {
 
 				switch (prod.getAction().getCode().charAt(8)) {
 				case '0':
-					result = ", new " + listtype + "()";
+					/* 
+					 * something like
+					 * java.util.ArrayList<XXX> RESULT = new java.util.ArrayList<XXX>();
+					 */
+					out.println("              " + listtype + " RESULT = new " + listtype + "();");
+					result = ", RESULT";
 					break;
 				case '1':
+					/* 
+					 * something like
+					 * java.util.ArrayList<XXX> RESULT = new java.util.ArrayList<XXX>();
+					 * RESULT.add ((XXX) $0.value);
+					 */
 					leftsym = rightsym = pre("0");
 					out.println("              " + RUNTIME_PACKAGE + ".Symbol " + rightsym + " = "
-							+ stackelem(prod.getRhsStackDepth(), options.opt_java15) + ";");
+							+ stackElement(prod.getRhsStackDepth(), options.opt_java15) + ";");
 					out.println("              " + listtype + " RESULT = new " + listtype + "();");
 					out.println("              " + "RESULT.add((" + basetype + ") " + rightsym + ".value);");
 					result = ", RESULT";
 					break;
 				case '2':
+					/* 
+					 * something like
+					 * java.util.ArrayList<XXX> RESULT = (java.util.ArrayList<XXX>) $0.value;
+					 * RESULT.add ((XXX) $1.value);
+					 */
 					leftsym = pre("0");
 					rightsym = pre("1");
 					out.println("              " + RUNTIME_PACKAGE + ".Symbol " + rightsym + " = "
-							+ stackelem(prod.getRhsStackDepth() - 1, options.opt_java15) + ";");
+							+ stackElement(prod.getRhsStackDepth() - 1, options.opt_java15) + ";");
 					out.println("              " + RUNTIME_PACKAGE + ".Symbol " + leftsym + " = "
-							+ stackelem(prod.getRhsStackDepth() - 0, options.opt_java15) + ";");
+							+ stackElement(prod.getRhsStackDepth() - 0, options.opt_java15) + ";");
 					out.println("              " + listtype + " RESULT = (" + listtype + ") " + leftsym + ".value;");
 					out.println("              " + "RESULT.add((" + basetype + ") " + rightsym + ".value);");
 					result = ", RESULT";
@@ -458,12 +473,12 @@ public class Emit {
 			if (prod.getRhsSize() <= 1 && rightsym == null) {
 				leftsym = rightsym = pre("sym");
 				out.println("              " + RUNTIME_PACKAGE + ".Symbol " + rightsym + " = "
-						+ stackelem(1, options.opt_java15) + ";");
+						+ stackElement(1, options.opt_java15) + ";");
 			} else {
 				if (rightsym == null)
-					rightsym = stackelem(1, options.opt_java15);
+					rightsym = stackElement(1, options.opt_java15);
 				if (leftsym == null)
-					leftsym = stackelem(prod.getRhsStackDepth(), options.opt_java15);
+					leftsym = stackElement(prod.getRhsStackDepth(), options.opt_java15);
 			}
 			leftright = ", " + leftsym + ", " + rightsym;
 		}
@@ -496,7 +511,7 @@ public class Emit {
 	 * @param out        stream to produce output on.
 	 * @param start_prod the start production of the grammar.
 	 */
-	private void emit_action_code(PrintWriter out, Grammar grammar, String action_class, Options options) {
+	private void emitActionCode(PrintWriter out, Grammar grammar, String action_class, Options options) {
 		timer.pushTimer();
 
 		/* Stack generic parameter and optional casts depending on Java Version */
@@ -556,7 +571,7 @@ public class Emit {
 			/* give them their own block to work in */
 			out.println("            {");
 
-			emit_action(out, grammar, prod, options);
+			emitAction(out, grammar, prod, options);
 
 			/* end of their block */
 			out.println("            }");
@@ -591,58 +606,8 @@ public class Emit {
 		timer.popTimer(Timer.TIMESTAMP.action_code_time);
 	}
 
-	/**
-	 * Emit the production table.
-	 * 
-	 * @param out stream to produce output on.
-	 */
-	private String do_production_table(Grammar grammar) {
-		timer.pushTimer();
-
-		short[] prod_table = new short[2 * grammar.gatActionCount()];
-		for (Production prod : grammar.actions()) {
-			prod_table[2 * prod.getActionIndex() + 0] = (short) prod.getLhs().getIndex();
-			prod_table[2 * prod.getActionIndex() + 1] = (short) prod.getRhsSize();
-		}
-		String result = do_array_as_string(prod_table);
-		timer.popTimer(Timer.TIMESTAMP.production_table_time);
-		return result;
-	}
-
-	/**
-	 * Emit the action table.
-	 * 
-	 * @param out             stream to produce output on.
-	 * @param act_tab         the internal representation of the action table.
-	 * @param compact_reduces do we use the most frequent reduce as default?
-	 */
-	private String do_action_table(Grammar grammar) {
-		timer.pushTimer();
-
-		ParseActionTable act_tab = grammar.getActionTable();
-		int[] base_tab = new int[act_tab.getTable().length];
-		short[] action_tab = act_tab.compress(base_tab);
-		String result = do_array_as_string(base_tab) + do_array_as_string(action_tab);
-		timer.popTimer(Timer.TIMESTAMP.action_table_time);
-		return result;
-	}
-
-	/**
-	 * Create the compressed reduce-goto table.
-	 * 
-	 * @param red_tab the internal representation of the reduce-goto table.
-	 */
-	private String do_reduce_table(Grammar grammar) {
-		timer.pushTimer();
-
-		ParseReduceTable red_tab = grammar.getReduceTable();
-		String result = do_array_as_string(red_tab.compress());
-		timer.popTimer(Timer.TIMESTAMP.goto_table_time);
-		return result;
-	}
-
 	/** create a string encoding a given short[] array. */
-	private String do_array_as_string(short[] sharr) {
+	private String translateArrayAsString(short[] sharr) {
 		StringBuilder sb = new StringBuilder();
 		if (sharr.length >= 0x8000)
 			sb.append((char) (0x8000 + (sharr.length >> 16)));
@@ -652,8 +617,8 @@ public class Emit {
 		return sb.toString();
 	}
 
-	/** create a string encoding a given short[] array. */
-	private String do_array_as_string(int[] intarr) {
+	/** create a string encoding a given int[] array. */
+	private String translateArrayAsString(int[] intarr) {
 		StringBuilder sb = new StringBuilder();
 		if (intarr.length >= 0x8000)
 			sb.append((char) (0x8000 + (intarr.length >> 16)));
@@ -665,6 +630,57 @@ public class Emit {
 			sb.append((char) (intarr[i] & 0xffff));
 		}
 		return sb.toString();
+	}
+
+	/**
+	 * Build the production table.
+	 * 
+	 * @param grammar the grammar to process
+	 * @return a String representing the production table
+	 */
+	private String buildProductionTable(Grammar grammar) {
+		timer.pushTimer();
+
+		short[] prod_table = new short[2 * grammar.gatActionCount()];
+		for (Production prod : grammar.actions()) {
+			prod_table[2 * prod.getActionIndex() + 0] = (short) prod.getLhs().getIndex();
+			prod_table[2 * prod.getActionIndex() + 1] = (short) prod.getRhsSize();
+		}
+		String result = translateArrayAsString(prod_table);
+		timer.popTimer(Timer.TIMESTAMP.production_table_time);
+		return result;
+	}
+
+	/**
+	 * Build the action table.
+	 * 
+	 * @param grammar the grammar to process
+	 * @return a String representing the action table
+	 */
+	private String buildActionTable(Grammar grammar) {
+		timer.pushTimer();
+
+		ParseActionTable act_tab = grammar.getActionTable();
+		int[] base_tab = new int[act_tab.getTable().length];
+		short[] action_tab = act_tab.compress(base_tab);
+		String result = translateArrayAsString(base_tab) + translateArrayAsString(action_tab);
+		timer.popTimer(Timer.TIMESTAMP.action_table_time);
+		return result;
+	}
+
+	/**
+	 * Build the reduce table.
+	 * 
+	 * @param grammar the grammar to process
+	 * @return a String representing the reduce table
+	 */
+	private String buildReduceTable(Grammar grammar) {
+		timer.pushTimer();
+
+		ParseReduceTable red_tab = grammar.getReduceTable();
+		String result = translateArrayAsString(red_tab.compress());
+		timer.popTimer(Timer.TIMESTAMP.goto_table_time);
+		return result;
 	}
 
 	/** print a string in java source code */
@@ -727,7 +743,7 @@ public class Emit {
 		out.println("// " + new Date());
 		out.println("//----------------------------------------------------");
 		out.println();
-		emit_package(out);
+		emitPackage(out);
 
 		/* user supplied imports */
 		for (String imp : options.import_list)
@@ -758,7 +774,7 @@ public class Emit {
 		}
 
 		/* emit the various tables */
-		String tables = do_production_table(grammar) + do_action_table(grammar) + do_reduce_table(grammar);
+		String tables = buildProductionTable(grammar) + buildActionTable(grammar) + buildReduceTable(grammar);
 
 		out.println("  /** The static parse table */");
 		out.println("  static " + RUNTIME_PACKAGE + ".ParseTable " + pre("parse_table") + " =");
@@ -829,7 +845,7 @@ public class Emit {
 		}
 
 		/* put out the action code class as inner class */
-		emit_action_code(out, grammar, action_class, options);
+		emitActionCode(out, grammar, action_class, options);
 
 		/* end of class */
 		out.println("}");

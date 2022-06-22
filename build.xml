@@ -63,6 +63,9 @@
     <java fork="true" classpath="${bootstrap}" classname="com.github.jhoenicke.javacup.Main">
       <arg value="-destdir"/>
       <arg value="${java}"/>
+    	<arg value="-dump_grammar"/>
+    	<arg value="-dump_states"/>
+    	<arg value="-dump_tables"/>
       <arg value="${cup}/parser.cup"/>
     </java>
     <jflex file="${flex}/Lexer.jflex" destdir="${java}" />
