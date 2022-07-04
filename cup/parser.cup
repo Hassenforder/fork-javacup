@@ -200,16 +200,16 @@ terminal String
 terminal String  ID, CODE_STRING;
 
 non terminal
+  spec,
   package_spec, parser_spec,
   option_spec, option_list, option_, action_code_part,
-  code_parts, code_part,
   parser_code_part, start_spec, expect_spec,
   import_spec, init_code, scan_code, after_reduce_code, symbol,
   terminal_non_terminal, decl_symbol_list, new_symbol_id,
   preced, assoc, precterminal_list, precterminal_id,
   production, rhs_list, rhs;
 
-non terminal Grammar spec;
+non terminal Grammar grammar;
 
 non terminal String  symbol_id, label_id, robust_id;
 non terminal StringBuilder multipart_id, import_id, type_id,
@@ -221,34 +221,30 @@ non terminal GrammarSymbol prod_precedence;
 
 /*----------------------------------------------------------------*/
 
-start with spec;
+start with grammar;
 
 /*. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . */
 
-spec ::=
-	package_spec
-	import_spec*
-	code_parts
-	symbol+
-	preced*
-	expect_spec
-	start_spec
-	production+
-        {: RESULT = grammar; :}
-	|
-	/* error recovery assuming something went wrong before symbols
-	   and we have TERMINAL or NON TERMINAL to sync on.  if we get
-	   an error after that, we recover inside symbol_list or
-	   production_list
-	*/
-	error
-	symbol+
-	preced*
-	expect_spec
-	start_spec
-	production+
-        {: RESULT = grammar; :}
-	;
+grammar	::=	spec*
+	        {: RESULT = grammar; :}
+		;
+
+spec ::=	package_spec
+		|	import_spec
+	    |	option_spec
+	    |	parser_spec
+	    |	action_code_part
+	    |	parser_code_part
+	    |	init_code
+	    |	scan_code
+	    |	after_reduce_code
+		|	symbol
+		|	preced
+		|	expect_spec
+		|	start_spec
+		|	production
+		|	error SEMI
+		;
 
 /*. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . */
 
@@ -258,8 +254,6 @@ package_spec ::=
 	  /* save the package name */
 	  parser.options.setOption("package", id.toString());
 	:}
-	|
-	/* empty */
 	;
 
 /*. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . */
@@ -272,14 +266,6 @@ import_spec ::=
 	:}
 	;
 
-
-// allow any order; all parts are optional. [CSA, 23-Jul-1999]
-// (we check in the part action to make sure we don't have 2 of any part)
-code_part ::=
-    option_spec | parser_spec |
-	action_code_part | parser_code_part | init_code | scan_code | after_reduce_code;
-code_parts ::=
-	| code_parts code_part;
 
 /*. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . */
 
@@ -366,11 +352,6 @@ symbol ::=
 	|
 	terminal_non_terminal
 	decl_symbol_list SEMI {: _cur_symbol_type = null; :}
-	|
-	/* error recovery productions -- sync on semicolon */
-	terminal_non_terminal
-	error
-	SEMI  {: _cur_symbol_type = null; :}
 	;
 	
 /*. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . */ 
@@ -432,8 +413,6 @@ precterminal_id ::= symbol_id:term
 expect_spec ::= 
 	EXPECT robust_id:val SEMI 
 	{: parser.options.setOption("expect", val); :}
-	|
-	/* empty */
 	;
 
 start_spec ::= 
@@ -442,8 +421,6 @@ start_spec ::=
 	   if (nt != null) 
 	     grammar.setStartSymbol(nt); 
 	:}
-	|
-	/* empty */
 	;
 
 /*. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . */ 
@@ -457,8 +434,6 @@ production ::=
 	COLON_COLON_EQUALS
 	rhs_list
 	SEMI
-	|
-	error SEMI
 	;
 
 /*. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . */ 

@@ -22,13 +22,13 @@ public class ParseActionTable {
 	private final int[][] table;
 
 	/** Constant for action type -- error action. */
-	public static final int ERROR = 0;
+	private static final int ERROR = 0;
 
 	/** Constant for action type -- shift action. */
-	public static final int SHIFT = 1;
+	private static final int SHIFT = 1;
 
 	/** Constants for action type -- reduce action. */
-	public static final int REDUCE = 2;
+	private static final int REDUCE = 2;
 
 	/**
 	 * Simple constructor. All terminals, non-terminals, and productions must
@@ -54,8 +54,56 @@ public class ParseActionTable {
 	 * @param kind  the kind of the action: ERROR, SHIFT or REDUCE.
 	 * @param index the index of the destination state resp. production rule.
 	 */
-	public static int createActionCode(int kind, int index) {
+	private static int createActionCode(int kind, int index) {
 		return 2 * index + kind;
+	}
+
+	/**
+	 * Returns the action code for the empty/error action.
+	 * 
+	 * @param index the index of the destination state resp. production rule.
+	 */
+	public static int getEmptyCode() {
+		return ERROR;
+	}
+
+	/**
+	 * Returns the action code for a shift action.
+	 * 
+	 * @param index the index of the destination state resp. production rule.
+	 */
+	public static int createShiftCode(int index) {
+		return createActionCode(SHIFT, index);
+	}
+
+	/**
+	 * Returns the action code for a reduce action.
+	 * 
+	 * @param index the index of the destination state resp. production rule.
+	 */
+	public static int createReduceCode(int index) {
+		return createActionCode(REDUCE, index);
+	}
+
+	/**
+	 * Returns true if the code represent an empty action
+	 * Warning : now empty and error share the same code
+	 * 
+	 * @param actionCode the action code.
+	 * @return true for empty action.
+	 */
+	public static boolean isEmpty(int actionCode) {
+		return actionCode == 0;
+	}
+
+	/**
+	 * Returns true if the code represent an error action
+	 * 
+	 * @param actionCode the action code.
+	 * @return true for error action.
+	 */
+	public static boolean isError(int actionCode) {
+		return actionCode == 0;
 	}
 
 	/**
@@ -161,12 +209,14 @@ public class ParseActionTable {
 	}
 
 	private static String toString(int code) {
-		if (code == ERROR)
+		if (isError(code))
 			return "ERROR";
 		else if (isShift(code))
 			return "SHIFT(" + getIndex(code) + ")";
-		else
+		else if (isReduce(code))
 			return "REDUCE(" + getIndex(code) + ")";
+		else
+			return "UNKNOWN";
 	}
 
 	public String toString() {

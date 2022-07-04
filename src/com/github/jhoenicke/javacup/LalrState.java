@@ -264,7 +264,7 @@ public class LalrState {
 		GrammarSymbol sym;
 
 		int default_lasize = 0;
-		int default_action = ParseActionTable.ERROR;
+		int default_action = ParseActionTable.getEmptyCode();
 		boolean default_prodisempty = false;
 
 		/* pull out our rows from the tables */
@@ -277,7 +277,7 @@ public class LalrState {
 			/* if its completed (dot at end) then reduce under the lookahead */
 			if (itm.getKey().isDotAtEnd()) {
 				boolean conflict = false;
-				act = ParseActionTable.createActionCode(ParseActionTable.REDUCE, itm.getKey().getProduction().getActionIndex());
+				act = ParseActionTable.createReduceCode(itm.getKey().getProduction().getActionIndex());
 				int lasize = 0;
 
 				/* consider each lookahead symbol */
@@ -288,7 +288,7 @@ public class LalrState {
 					lasize++;
 
 					/* if we don't already have an action put this one in */
-					if (our_act_row[t] == ParseActionTable.ERROR) {
+					if (ParseActionTable.isEmpty(our_act_row[t])) {
 						our_act_row[t] = act;
 						productions[t] = itm.getKey().getProduction();
 					} else {
@@ -336,13 +336,13 @@ public class LalrState {
 
 		/* consider each outgoing transition */
 		for (LalrTransition trans = transitions; trans != null; trans = trans.next) {
-			/* if its on an terminal add a shift entry */
+			/* if its on a terminal add a shift entry */
 			sym = trans.onSymbol;
 			int idx = sym.getIndex();
 			if (!sym.isNonTerm()) {
-				act = ParseActionTable.createActionCode(ParseActionTable.SHIFT, trans.toState.getIndex());
+				act = ParseActionTable.createShiftCode(trans.toState.getIndex());
 				/* if we don't already have an action put this one in */
-				if (our_act_row[idx] == ParseActionTable.ERROR) {
+				if (ParseActionTable.isEmpty(our_act_row[idx])) {
 					our_act_row[sym.getIndex()] = act;
 				} else {
 					/* this is a shift_reduce conflict */
@@ -366,19 +366,19 @@ public class LalrState {
 		 * default action.
 		 */
 		act = our_act_row[Terminal.error.getIndex()];
-		if (act != ParseActionTable.ERROR) {
-			default_action = ParseActionTable.isReduce(act) ? act : ParseActionTable.ERROR;
+		if (! ParseActionTable.isEmpty(act)) {
+			default_action = ParseActionTable.isReduce(act) ? act : ParseActionTable.getEmptyCode();
 			default_prodisempty = false;
 		}
 		our_act_row[grammar.getTerminalCount()] = default_action;
-		if (default_action != ParseActionTable.ERROR) {
+		if (! ParseActionTable.isEmpty(default_action)) {
 			for (int i = 0; i < grammar.getTerminalCount(); i++) {
 				/*
 				 * map everything to default action, except the error transition if
 				 * default_action reduces an empty production. The latter may otherwise lead to
 				 * infinite loops.
 				 */
-				if (our_act_row[i] == ParseActionTable.ERROR && (i != Terminal.error.getIndex() || !default_prodisempty))
+				if (ParseActionTable.isEmpty(our_act_row[i]) && (i != Terminal.error.getIndex() || !default_prodisempty))
 					our_act_row[i] = default_action;
 			}
 		}
@@ -404,25 +404,38 @@ public class LalrState {
 	 */
 	private boolean fixWithPrecedence(Production p, Terminal term, int[] tableRow, int shiftAction) {
 		/*
-		 * if both production and terminal have a precedence number, it can be fixed
+		 * if production has an associativity, it can be fixed
 		 */
-		if (p.getPrecedence() > Assoc.NOPREC && term.getPrecedence() > Assoc.NOPREC) {
-
-			int compare = term.getPrecedence() - p.getPrecedence();
-			if (compare == 0)
-				compare = term.getAssociativity() - Assoc.NONASSOC;
-
+		if (p.getAssociativity() != Assoc.NOPREC) {
 			/* if production precedes terminal, keep reduce in table */
-			if (compare < 0)
+			if ( term.getPrecedence() < p.getPrecedence())
 				return true;
-
 			/* if terminal precedes rule, put shift in table */
-			else if (compare > 0) {
+			else if ( term.getPrecedence() > p.getPrecedence()) {
 				tableRow[term.getIndex()] = shiftAction;
 				return true;
 			}
+			/* left associativity promotes the reduce all ready in table*/
+			if (term.getAssociativity() == Assoc.LEFT) {
+				return true;
+			}
+			/* right associativity promotes the shift */
+			if (term.getAssociativity() == Assoc.RIGHT) {
+				tableRow[term.getIndex()] = shiftAction;
+				return true;
+			}
+			/* no associativity cancel previous reduce action  */
+			if (term.getAssociativity() == Assoc.NONASSOC) {
+				tableRow[term.getIndex()] = ParseActionTable.getEmptyCode();
+				return true;
+			}
+		} else if (term.getAssociativity() != Assoc.NOPREC) {
+			/*
+			 * terminal has a precedence so it is fixed with a shift
+			 */
+			tableRow[term.getIndex()] = shiftAction;
+			return true;
 		}
-
 		/*
 		 * otherwise, neither the rule nor the terminal has a precedence, so it can't be
 		 * fixed.
