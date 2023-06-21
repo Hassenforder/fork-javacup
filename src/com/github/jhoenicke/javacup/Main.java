@@ -192,6 +192,7 @@ public class Main {
 		System.err.println("Usage: " + Version.programName + " [options] [filename]\n"
 				+ "  and expects a specification file on standard input if no filename is given.\n"
 				+ "  Legal options include:\n"
+				+ "    -out name  	  specify an output filename [default System.out]\n"
 				+ "    -package name  specify package generated classes go in [default none]\n"
 				+ "    -destdir name  specify the destination directory, to store the generated files in\n"
 				+ "    -parser name   specify parser class name [default \"parser\"]\n"
@@ -234,7 +235,7 @@ public class Main {
 			/* try to get the various options */
 			if (option.equals("-package") || option.equals("-destdir") || option.equals("-parser")
 					|| option.equals("-symbols") || option.equals("-terminals") || option.equals("-nonterminals")
-					|| option.equals("-typearg") || option.equals("-expect")) {
+					|| option.equals("-typearg") || option.equals("-expect") || option.equals("-out")) {
 				/* must have an arg */
 				if (++i >= len || argv[i].startsWith("-") || argv[i].endsWith(".cup"))
 					ErrorManager.getManager().emit_fatal(option + " must have an argument");
@@ -243,7 +244,7 @@ public class Main {
 					return 1;
 				}
 			} else if (argv[i].equals("-version")) {
-				System.out.println(Version.title);
+				ErrorManager.getManager().emit_info(Version.title);
 				return 1;
 			} else if (option.startsWith("-")) {
 				if (!options.setOption(option.substring(1))) {
@@ -696,6 +697,7 @@ public class Main {
 			/* run parser, analyser and generater */
 			code = main.run();
 		}
+		ErrorManager.getManager().flush();
 		if (code == 0)
 			return;
 		if (!main.options.opt_no_exit) {

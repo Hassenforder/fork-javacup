@@ -25,7 +25,7 @@ public class Version {
 	private static final int minor = 3;
 
 	/** The update letter. */
-	private static final String update = " 20220622";
+	private static final String update = " 20230621";
 
 	/** String for the current version. */
 	public static final String version = "" + major + "." + minor + update;

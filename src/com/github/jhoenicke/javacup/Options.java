@@ -125,6 +125,18 @@ public class Options {
 	}
 
 	public boolean setOption(String option, String arg) {
+		if (option.equals("out")) {
+			if (arg != null) {
+				if (! ErrorManager.getManager().setOutput (arg)) {
+					ErrorManager.getManager().emit_fatal("the output file cannot be created");
+					return false;
+				}
+				return true;
+			} else {
+				ErrorManager.getManager().emit_fatal("out must have a name argument");
+				return false;
+			}
+		}
 		if (option.equals("destdir")) {
 			if (arg != null) {
 				dest_dir = arg;

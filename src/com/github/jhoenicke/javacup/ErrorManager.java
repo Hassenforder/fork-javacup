@@ -1,5 +1,10 @@
 package com.github.jhoenicke.javacup;
 
+import java.io.PrintWriter;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -33,6 +38,9 @@ public class ErrorManager {
 		Fatal,
 	}
 
+	/** PrintWriter where all messages go */
+	private PrintWriter output = new PrintWriter (System.out);
+	
 	/** counter of emitted infos */
 	private int infos = 0;
 	/** counter of emitted warnings */
@@ -56,6 +64,24 @@ public class ErrorManager {
 		if (errorManager == null)
 			errorManager = new ErrorManager();
 		return errorManager;
+	}
+
+	/**
+	 * change the output for all messages
+	 * by default it is System.out
+	 */
+	
+	public boolean setOutput(String filename) {
+		try {
+			output = new PrintWriter (new BufferedWriter (new FileWriter(filename)));
+			return true;
+		} catch (IOException e) {
+			return false;
+		}
+	}
+
+	public void flush() {
+		output.flush();
 	}
 
 	/** clear every things just by forgetting previous singleton */
@@ -124,7 +150,7 @@ public class ErrorManager {
 		}
 		String text = tmp.toString();
 		getMessages().add(text);
-		System.err.println(text);
+		output.println(text);
 	}
 
 	/**

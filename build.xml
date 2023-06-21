@@ -153,6 +153,8 @@
 
 	  <target name="test-md" depends="dist">
 	    <java jar="${dist}/${jar}.jar" fork="true">
+	        <arg value="-out"/>
+	        <arg value="result.log"/>
 	        <arg value="-destdir"/>
 	        <arg value="${test}"/>
 	    	<arg value="-newpositions"/>
