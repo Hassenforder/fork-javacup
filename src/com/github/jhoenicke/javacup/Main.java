@@ -698,6 +698,7 @@ public class Main {
 			code = main.run();
 		}
 		ErrorManager.getManager().flush();
+		ErrorManager.clear();
 		if (code == 0)
 			return;
 		if (!main.options.opt_no_exit) {
