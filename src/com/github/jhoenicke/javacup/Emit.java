@@ -314,7 +314,7 @@ public class Emit {
 		timer.popTimer(Timer.TIMESTAMP.symbols_time);
 	}
 
-	private void emitAction(PrintWriter out, Grammar grammar, Production prod, Options options) {
+	private void emitStdAction(PrintWriter out, Grammar grammar, Production prod, Options options) {
 		boolean is_star_action = prod.getAction() != null && prod.getAction().getCode().startsWith("CUP$STAR");
 		String result = "";
 		if (prod.getLhs().getType() != null && !is_star_action) {
@@ -502,6 +502,25 @@ public class Emit {
 		}
 		out.println("              return parser." + factoryName + ".newSymbol(" + symbolName + leftright + result + ");");
 	}
+
+	private void emitCSTAction(PrintWriter out, Grammar grammar, Production prod, Options options) {
+		out.println("              List<" + RUNTIME_PACKAGE + ".Symbol> children;");
+		for (int i = prod.getRhsStackDepth() - 1; i >= 0; i--) {
+			out.println("              children.add("
+					+ stackElement(prod.getRhsStackDepth() - i, options.opt_java15) + ");");
+		}
+		String symbolName = "";
+		symbolName = options.symbol_const_nonterminal_name + "." + prod.getLhs().getName();
+		out.println("              return parser.getSymbolFactory2().newSymbol(" + symbolName + ", children);");
+	}
+	
+	private void emitAction(PrintWriter out, Grammar grammar, Production prod, Options options) {
+		switch (options.generatorMode) {
+		case ACTION :	emitStdAction(out, grammar, prod, options); break;
+		case CST : 		emitCSTAction(out, grammar, prod, options); break;
+		}
+	}
+	
 
 	/* . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . */
 

@@ -1,9 +1,14 @@
 package com.github.jhoenicke.javacup.runtime;
 
+import java.util.List;
+
 /**
  * Implementation for SymbolFactory2, creates advanced Symbols based on enum and
- * with line/column information.
+ * with line/column information. (12 june 2022)
  *
+ * Implementation for SymbolFactory2, creates advanced Symbols with children (list of Symbols)
+ * The goal is to propagate the whole concrete syntax tree to the start symbol (25 march 2024)
+ * 
  * For compatibility with SimpleFactory this factory pretends implements SymbolFactory
  * but throws Error to break it at runtime
  * 
@@ -62,10 +67,11 @@ public class AdvancedSymbolFactory implements SymbolFactory2, SymbolFactory {
 
 		private Enum<?> id;
 		private Location left, right;
-
+		private List<Symbol> children;
+		
 		/**
-		 * build a symbol with just it is id based on an enum
-		 * ctor is reserved for the factory
+		 * build a symbol with just its id based on an enum
+		 * this ctor is reserved for the factory
 		 * 
 		 * @param id the enum representing the symbol
 		 */
@@ -75,8 +81,8 @@ public class AdvancedSymbolFactory implements SymbolFactory2, SymbolFactory {
 		}
 
 		/**
-		 * build a symbol with it is id based on an enum and an arbitrary value
-		 * ctor is reserved for the factory
+		 * build a symbol with its id based on an enum and an arbitrary value
+		 * this ctor is reserved for the factory
 		 * 
 		 * @param id 		the enum representing the symbol
 		 * @param value 	a value, object of an arbitrary Class
@@ -87,8 +93,21 @@ public class AdvancedSymbolFactory implements SymbolFactory2, SymbolFactory {
 		}
 
 		/**
-		 * build a symbol with it is id based on an enum and a state
-		 * ctor is reserved for the factory
+		 * build a symbol with its id based on an enum and a list of child symbols
+		 * this ctor is reserved for the factory
+		 * 
+		 * @param id 		the enum representing the symbol
+		 * @param children 	a List<Symbol> children of this Symbol
+		 */
+		protected AdvancedSymbol(Enum<?> id, List<Symbol> children) {
+			super(id.ordinal());
+			this.id = id;
+			this.children = children;
+		}
+
+		/**
+		 * build a symbol with its id based on an enum and a state
+		 * this ctor is reserved for the factory
 		 * 
 		 * @param id 		the enum representing the symbol
 		 * @param state 	initial state as this method should reserved for startSymbol
@@ -164,6 +183,15 @@ public class AdvancedSymbolFactory implements SymbolFactory2, SymbolFactory {
 			return right;
 		}
 
+		/**
+		 * getter of the child symbols
+		 * 
+		 * @return the children
+		 */
+		public List<Symbol> getChildren() {
+			return children;
+		}
+
 		public String toString() {
 			StringBuilder tmp = new StringBuilder();
 			tmp.append("Symbol: ");
@@ -237,6 +265,18 @@ public class AdvancedSymbolFactory implements SymbolFactory2, SymbolFactory {
 			symbol.setLeft(((AdvancedSymbol) left).getLeft());
 		if (right != null)
 			symbol.setRight(((AdvancedSymbol) right).getRight());
+		return symbol;
+	}
+
+	/**
+	 * @see SymbolFactory2#newSymbol(Enum<?>, Symbol, Symbol, Object)
+	 */
+	public Symbol newSymbol(Enum<?> id, List<Symbol> children) {
+		AdvancedSymbol symbol = new AdvancedSymbol(id, children);
+		if (children.size() > 0)
+			symbol.setLeft(children.get(0));
+		if (children.size() > 0)
+			symbol.setRight(children.get(children.size() - 1 ));
 		return symbol;
 	}
 

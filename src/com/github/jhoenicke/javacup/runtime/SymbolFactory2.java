@@ -1,5 +1,7 @@
 package com.github.jhoenicke.javacup.runtime;
 
+import java.util.List;
+
 /**
  * Creates the Symbols interface, which CUP uses as default
  *
@@ -14,14 +16,26 @@ package com.github.jhoenicke.javacup.runtime;
  * 
  * Interface SymbolFactory2
  * 
- * an interface for creating new symbols based on Enum
+ * an interface for creating new symbols based on Enum (12 june 2022)
+ * extended to store the lust of child symbols to propagate the whole concrete syntax tree (25 march 2024)
  *
  ***************************************************/
 public interface SymbolFactory2 {
 
 	/*
-	 * new API for all Factories but not Advanced
+	 * new API for all Factories
 	 */
+
+	/**
+	 * Construction with child propagation switched on
+	 * Strongly used by the generated Parser to build nonterminals during reduce actions
+	 * 
+	 * @param token an enum to represent the symbol (mainly Nonterminal)
+	 * @param children  the child symbols of the rule
+	 * 
+	 * @return a symbol
+	 */
+	public Symbol newSymbol(Enum<?> token, List<Symbol> children);
 
 	/**
 	 * Construction with left/right propagation switched on and a value
