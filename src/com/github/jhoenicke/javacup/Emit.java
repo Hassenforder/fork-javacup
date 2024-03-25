@@ -504,7 +504,7 @@ public class Emit {
 	}
 
 	private void emitCSTAction(PrintWriter out, Grammar grammar, Production prod, Options options) {
-		out.println("              List<" + RUNTIME_PACKAGE + ".Symbol> children;");
+		out.println("              java.util.List<" + RUNTIME_PACKAGE + ".Symbol> children = new java.util.ArrayList<>();");
 		for (int i = prod.getRhsStackDepth() - 1; i >= 0; i--) {
 			out.println("              children.add("
 					+ stackElement(prod.getRhsStackDepth() - i, options.opt_java15) + ");");
