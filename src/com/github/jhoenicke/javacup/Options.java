@@ -4,6 +4,17 @@ import java.util.ArrayList;
 
 public class Options {
 
+	/** User option -- what we generate
+	 * ACTION : default mode where we generate all action rules given in the cup file
+	 * CST : no action are generated but the Symbol is able to store the whole concret syntax tree
+	 *       this mode should be welcome for LSP
+	 */
+	enum GeneratorMode {
+		ACTION,
+		CST,
+	}
+	public GeneratorMode generatorMode = GeneratorMode.ACTION;
+	
 	/** User option -- do we print progress messages. */
 	public boolean print_progress = false;
 	/** User option -- we include the messages in the dump  */
@@ -143,6 +154,17 @@ public class Options {
 				return true;
 			} else {
 				ErrorManager.getManager().emit_fatal("destdir must have a name argument");
+				return false;
+			}
+		}
+		if (option.equals("mode")) {
+			GeneratorMode mode = null;
+			try { mode = GeneratorMode.valueOf(arg); } catch (Exception e) { }
+			if (mode != null) {
+				generatorMode = mode;
+				return true;
+			} else {
+				ErrorManager.getManager().emit_fatal("mode must have an ACTION or CST argument");
 				return false;
 			}
 		}
