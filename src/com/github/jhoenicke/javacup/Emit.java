@@ -3,6 +3,8 @@ package com.github.jhoenicke.javacup;
 import java.io.PrintWriter;
 import java.util.Date;
 
+import com.github.jhoenicke.javacup.Options.GeneratorMode;
+
 /**
  * This class handles emitting generated code for the resulting parser. The
  * various parse tables must be constructed, etc. before calling any routines in
@@ -504,6 +506,9 @@ public class Emit {
 	}
 
 	private void emitCSTAction(PrintWriter out, Grammar grammar, Production prod, Options options) {
+		if ("$START".equals(prod.getLhs().getName())) {
+			out.println("              parser.done_parsing();");
+		}
 		out.println("              java.util.List<" + RUNTIME_PACKAGE + ".Symbol> children = new java.util.ArrayList<>();");
 		for (int i = prod.getRhsStackDepth() - 1; i >= 0; i--) {
 			out.println("              children.add("
@@ -821,6 +826,41 @@ public class Emit {
 		out.println("    }");
 		out.println();
 
+		if (options.generatorMode == GeneratorMode.CST) {
+			out.println("  /** Helpers for CST */");
+			out.println("  public " + RUNTIME_PACKAGE + ".Symbol getCSTRoot () {");
+			out.println("    return stack.get(stack.size()-1);");
+			out.println("  }");
+			out.println();
+			out.println("  public java.util.Set<ETerminal> getNextToken (int state) {");
+			out.println("     java.util.Set<ETerminal> next = new java.util.TreeSet<>();");
+			out.println("     for (int i = 0; i < ETerminal.values().length; i++) {");
+			out.println("        short s = parse_table().getAction(state, i);");
+			out.println("        if (s != 0) {");
+			out.println("           next.add(ETerminal.values()[i]);");
+			out.println("        }");
+			out.println("  	  }");
+			out.println("  	  return next;");
+			out.println("  }");
+			out.println();
+		}
+/*
+ * 	public Symbol getCSTRoot () {
+		return stack.get(stack.size()-1);
+	}
+
+	public java.util.Set<ETerminal> getNextToken (int state) {
+		java.util.Set<ETerminal> next = new java.util.TreeSet<>();
+		for (int i = 0; i < ETerminal.values().length; i++) {
+			short s = parse_table().getAction(state, i);
+			if (s != 0) {
+				next.add(ETerminal.values()[i]);			
+			}
+		}
+		return next;
+	}
+		
+ */
 		/* access to action code */
 		out.println("  /** Invoke a user supplied parse action. */");
 		out.println("  public " + RUNTIME_PACKAGE + ".Symbol do_action(");
