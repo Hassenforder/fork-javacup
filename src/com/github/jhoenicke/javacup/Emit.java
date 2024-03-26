@@ -832,8 +832,8 @@ public class Emit {
 			out.println("    return stack.get(stack.size()-1);");
 			out.println("  }");
 			out.println();
-			out.println("  public java.util.Set<ETerminal> getNextToken (int state) {");
-			out.println("     java.util.Set<ETerminal> next = new java.util.TreeSet<>();");
+			out.println("  public java.util.Set<Enum<?>> getNextToken (int state) {");
+			out.println("     java.util.Set<Enum<?>> next = new java.util.TreeSet<>();");
 			out.println("     for (int i = 0; i < ETerminal.values().length; i++) {");
 			out.println("        short s = parse_table().getAction(state, i);");
 			out.println("        if (s != 0) {");

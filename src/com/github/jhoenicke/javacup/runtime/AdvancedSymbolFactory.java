@@ -166,6 +166,15 @@ public class AdvancedSymbolFactory implements SymbolFactory2, SymbolFactory {
 		}
 
 		/**
+		 * getter of the enum representing the id
+		 * 
+		 * @return the Enum<?>
+		 */
+		public Enum<?> getId() {
+			return id;
+		}
+
+		/**
 		 * getter of the leftmost location
 		 * 
 		 * @return the location
