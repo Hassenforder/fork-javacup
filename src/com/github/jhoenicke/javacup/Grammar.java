@@ -59,6 +59,7 @@ public class Grammar {
 
 		terminals.add(Terminal.error);
 		terminals.add(Terminal.EOF);
+		terminals.add(Terminal.outOfAlphabet);
 	}
 
 	public ParseActionTable getActionTable() {

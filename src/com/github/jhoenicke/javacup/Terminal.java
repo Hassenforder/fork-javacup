@@ -17,6 +17,9 @@ public class Terminal extends GrammarSymbol {
 	/** special terminal used for error recovery */
 	public static Terminal error = new Terminal("error", 0);
 
+	/** special terminal used for a terminal out of the defined alphabet */
+	public static Terminal outOfAlphabet = new Terminal("OOA", 2);
+
 	private int precedence;
 	private int associativity;
 
