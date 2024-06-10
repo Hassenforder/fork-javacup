@@ -299,7 +299,7 @@ public class Emit {
 		/* class header */
 		out.println("/** CUP generated " + type + " containing nonterminal constants. */");
 		// package private as only Parser should use it
-		out.println(type + " " + options.symbol_const_nonterminal_name + " {");
+		out.println("public " + type + " " + options.symbol_const_nonterminal_name + " {");
 
 		out.println("  /* nonterminals */");
 
@@ -510,7 +510,7 @@ public class Emit {
 			out.println("              parser.done_parsing();");
 		}
 		out.println("              java.util.List<" + RUNTIME_PACKAGE + ".Symbol> children = new java.util.ArrayList<>();");
-		for (int i = prod.getRhsStackDepth() - 1; i >= 0; i--) {
+		for (int i = 0; i < prod.getRhsStackDepth(); ++i) {
 			out.println("              children.add("
 					+ stackElement(prod.getRhsStackDepth() - i, options.opt_java15) + ");");
 		}
