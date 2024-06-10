@@ -313,10 +313,10 @@ public class AdvancedSymbolFactory implements SymbolFactory2, SymbolFactory {
 
 	/**
 	 * internal hack to create START and ERROR as an Enum
-	 * reply on the fact that they should ever be the two firsts in the generated ENonterminal
+	 * rely on the fact that they should ever be the two firsts in the generated ENonterminal
 	 */
 	private static enum SpecialNonterminal {
-		START, ERROR,
+		START, error,
 	}
 
 	/**
@@ -337,7 +337,7 @@ public class AdvancedSymbolFactory implements SymbolFactory2, SymbolFactory {
 	 * @see SymbolFactory2#errorSymbol(Symbol, Symbol)
 	 */
 	public Symbol errorSymbol(Symbol left, Symbol right) {
-		return newSymbol(SpecialNonterminal.ERROR, left, right);
+		return newSymbol(SpecialNonterminal.error, left, right);
 	}
 
 	/**
