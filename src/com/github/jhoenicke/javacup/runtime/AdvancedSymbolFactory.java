@@ -142,26 +142,28 @@ public class AdvancedSymbolFactory implements SymbolFactory2, SymbolFactory {
 		}
 
 		/**
-		 * setter for the rightmost location
-		 * setter is reserved for the factory
-		 * 
-		 * @param right	the rightmost symbol
-		 * @return itself
-		 */
-		protected AdvancedSymbol setLeft(Symbol right) {
-			this.right = ((AdvancedSymbol) right).right;
-			return this;
-		}
-
-		/**
 		 * setter for the leftmost location
 		 * setter is reserved for the factory
 		 * 
 		 * @param left	the leftmost symbol
 		 * @return itself
 		 */
-		protected AdvancedSymbol setRight(Symbol left) {
-			this.left = ((AdvancedSymbol) left).left;
+		protected AdvancedSymbol setLeft(Symbol left) {
+			if (left instanceof AdvancedSymbol)
+				this.left = ((AdvancedSymbol) left).left;
+			return this;
+		}
+
+		/**
+		 * setter for the rightmost location
+		 * setter is reserved for the factory
+		 * 
+		 * @param right	the rightmost symbol
+		 * @return itself
+		 */
+		protected AdvancedSymbol setRight(Symbol right) {
+			if (right instanceof AdvancedSymbol)
+				this.right = ((AdvancedSymbol) right).right;
 			return this;
 		}
 
@@ -204,14 +206,16 @@ public class AdvancedSymbolFactory implements SymbolFactory2, SymbolFactory {
 		public String toString() {
 			StringBuilder tmp = new StringBuilder();
 			tmp.append("Symbol: ");
+			tmp.append("<");
 			tmp.append(id.name());
+			tmp.append(">");
 			if (value != null) {
-				tmp.append("==\"");
+				tmp.append(" ==\"");
 				tmp.append(value);
 				tmp.append("\"");
 			}
 			if (left != null && right != null) {
-				tmp.append("(");
+				tmp.append(" (");
 				tmp.append(left);
 				tmp.append(" - ");
 				tmp.append(right);
