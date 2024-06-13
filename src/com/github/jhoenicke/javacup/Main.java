@@ -327,6 +327,10 @@ public class Main {
 			if (term == Terminal.error)
 				continue;
 
+			/* or out Of Alphabet */
+			if (term == Terminal.outOfAlphabet)
+				continue;
+
 			/* is this one unused */
 			if (term.getUseCount() == 0) {
 				/* count it and warn if we are doing warnings */
