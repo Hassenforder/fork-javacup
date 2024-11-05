@@ -1,0 +1,58 @@
+package fr.uha.hassenforder.markdown.reader;
+
+import fr.uha.hassenforder.markdown.model.Node;
+import fr.uha.hassenforder.markdown.model.NodeType;
+
+option mode = CST;
+
+parser code {:
+    
+    public void report_error(String message, Object info) {
+        StringBuffer m = new StringBuffer("Error on ");
+		m.append (info.toString());
+        m.append(" : "+message);
+        System.err.println(m.toString());
+    }
+   
+    public void report_fatal_error(String message, Object info) {
+        report_error(message, info);
+        System.exit(1);
+    }
+
+	private Node scene;
+	
+	public Node getScene () {
+		return scene;
+	}	
+
+	public void setScene (Node node) {
+		scene = node;
+	}	
+:}
+
+terminal			STAR;
+
+terminal			STAR_PREC_1;
+
+terminal String		LINE;
+
+nonterminal 		page;
+nonterminal Node	directives, directive, line;
+
+precedence left STAR_PREC_1;
+precedence left STAR;
+
+page		::=	directives:l					{: parser.setScene (l); :}
+			;
+
+directives	::=									{: RESULT = new Node (NodeType.DIV); :}
+			|	directives:l directive:p		{: RESULT = l; l.addNode(p); :}
+			;
+
+directive	::=	line:l							{: RESULT = l;  :}
+			|	STAR line:l						{: RESULT = new Node (NodeType.LIST_UL, l); :} %prec STAR_PREC_1
+			|	STAR line:l STAR				{: RESULT = new Node (NodeType.EMPHASIS, l); :}
+			;
+
+line		::=	LINE:l							{: RESULT = new Node (NodeType.TEXT, l); :}
+			;

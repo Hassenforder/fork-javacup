@@ -1,0 +1,235 @@
+package fr.uha.hassenforder.mdpi_parser;
+
+import java.util.TreeMap;
+import java.util.Map;
+
+parser code {:
+    
+    public void report_error(String message, Object info) {
+        StringBuffer m = new StringBuffer();
+        m.append ("Error ");
+		m.append (info.toString());
+        m.append (" : ");
+        m.append (message);
+        System.err.println(m.toString());
+
+        System.out.println("0,error,,,");
+    }
+   
+    public void report_fatal_error(String message, Object info) {
+        report_error(message, info);
+        System.exit(1);
+    }
+
+:}
+
+terminal			PARAGRAPH;
+terminal			TABLE_BEGIN, TABLE_END, ELECTION_FAILS, BLANK_LINE;
+terminal			MDPI11articletype;
+terminal			MDPI12title;
+terminal			MDPI13authornames;
+terminal			MDPI14history;
+terminal			MDPI16affiliation;
+terminal			MDPI17abstract;
+terminal			MDPI18keywords;
+terminal			MDPI19line;
+
+terminal			MDPI21heading1;
+terminal			MDPI22heading2;
+terminal			MDPI23heading3;
+terminal			MDPI29References;
+
+terminal			MDPI31text;
+terminal			MDPI39equation;
+terminal			MDPI3aequationnumber;
+   
+terminal			MDPI41tablecaption;
+terminal			MDPI42tablebody;
+terminal			MDPI43tablefooter;
+
+terminal			MDPI51figurecaption;
+terminal			MDPI52figure;
+terminal			MDPI62Acknowledgments;
+terminal			MDPI71References;
+
+nonterminal 		paper, head, body, back;
+nonterminal 		type, title, author, affiliations, affiliation, history, _abstract, keywords, line;
+nonterminal			sections, section;
+nonterminal			subSections, subSection;
+nonterminal			subSubSections, subSubSection;
+nonterminal			subSubSubSections, subSubSubSection;
+nonterminal			commonContents, commonContent;
+nonterminal			text, table, figure, equation, grid;
+nonterminal			gridContents, gridContent;
+nonterminal			figureHeader, figureFooter, emptyFigureCells, figureCells, figureCell;
+nonterminal			equationCells, equationCell; 
+nonterminal			emptyTableCells, tableCaption, tableCells, tableCell, tableFooter;
+nonterminal			acks, ack, refs, ref;
+
+expect 6;
+
+paper 			::= head body back
+				;
+		
+head			::= type title author affiliations history _abstract keywords line
+				;
+		
+type			::=	MDPI11articletype
+				;
+		
+title			::=	MDPI12title
+				;
+
+author			::=	MDPI13authornames
+				;
+
+affiliations	::=	affiliation
+				|	affiliations affiliation
+				;
+
+affiliation		::=	MDPI16affiliation
+				;
+				
+history			::=	MDPI14history
+				|	history MDPI14history
+				;
+
+_abstract		::=	MDPI17abstract
+				;
+
+keywords		::=	MDPI18keywords
+				;
+
+line			::=	MDPI19line
+				;
+
+body			::=	sections
+				;
+
+sections		::=	section
+				|	sections section
+				;
+
+section			::=	MDPI21heading1 commonContents subSections
+				;
+
+commonContents	::= 
+				|	commonContents commonContent
+				;
+
+commonContent	::=	text
+				|	table
+				|	equation
+				|	figure
+				|	grid
+				;
+
+grid			::=	TABLE_BEGIN gridContents TABLE_END
+				;
+
+gridContents	::= 
+				|	gridContents gridContent
+				;
+
+gridContent		::=	text
+				;
+
+text			::=	MDPI31text
+				;
+
+equation		::=	TABLE_BEGIN equationCells TABLE_END
+				;
+
+equationCells	::=	equationCell
+				|	equationCells equationCell
+				;
+
+equationCell	::=	MDPI39equation
+				|	MDPI3aequationnumber
+				;
+
+figure			::=	figureHeader figureFooter
+				|	figureHeader TABLE_BEGIN figureCells TABLE_END figureFooter
+				|	TABLE_BEGIN figureCells TABLE_END figureFooter
+				;
+
+figureHeader	::=	MDPI52figure
+				;
+
+figureFooter	::=	MDPI51figurecaption
+				|	MDPI41tablecaption
+				;
+
+figureCells		::=	figureCell
+				|	figureCells figureCell
+				;
+
+emptyFigureCells::=	
+				|	figureCells
+				;
+
+figureCell		::=	MDPI52figure
+				|	MDPI51figurecaption
+				|	TABLE_BEGIN emptyFigureCells TABLE_END
+				;
+
+table			::=	tableCaption TABLE_BEGIN tableCells TABLE_END tableFooter
+				;
+
+tableCells		::=	tableCell
+				|	tableCells tableCell
+				;
+				
+emptyTableCells	::=	
+				|	tableCells
+				;
+
+tableCell		::=	MDPI42tablebody
+				|	TABLE_BEGIN emptyTableCells TABLE_END
+				;
+
+tableCaption	::=	MDPI41tablecaption
+				;
+
+tableFooter		::=
+				|	MDPI43tablefooter tableFooter
+				;
+
+subSections		::= 
+				|	subSections subSection
+				;
+
+subSection		::=	MDPI22heading2 commonContents subSubSections
+				;
+
+subSubSections	::= 
+				|	subSubSections subSubSection
+				;
+
+subSubSection	::=	MDPI23heading3 commonContents /*subSubSubSections*/
+				;
+
+subSubSubSections	::= subSubSubSection
+				|	subSubSubSections subSubSubSection
+				;
+
+subSubSubSection	::=	
+				;
+
+back			::= acks MDPI21heading1 refs
+				;
+
+acks			::=	ack
+				|	acks ack
+				;
+
+ack				::=	MDPI62Acknowledgments
+				;
+
+refs			::=	
+				|	refs ref
+				;
+
+ref				::=	MDPI71References
+				|	TABLE_BEGIN refs TABLE_END 
+				;

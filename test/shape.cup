@@ -1,0 +1,128 @@
+import fr.uha.hassenforder.animation2SVG.model.Node;
+import fr.uha.hassenforder.animation2SVG.model.NodeType;
+
+parser code {:
+  
+    public void report_error(String message, Object info) {
+        StringBuffer m = new StringBuffer("Error");
+		m.append (info.toString());
+        m.append(" : "+message);
+        System.err.println(m.toString());
+    }
+   
+    public void report_fatal_error(String message, Object info) {
+        report_error(message, info);
+        System.exit(1);
+    }
+
+	private Node scene;
+	
+	
+	public Node getScene () {
+		return scene;
+	}	
+
+	public void setScene (Node node) {
+		scene = node;
+	}	
+:}
+
+package fr.uha.hassenforder.animation2SVG.reader;
+
+terminal			EQUAL, COMMA, DOT, COLON, OPEN_ROUND, CLOSE_ROUND;
+terminal			OR, PLUS, MINUS, MULT, DIV, MOD, UNARY_MINUS, QUESTION;
+
+terminal String		NAME, STRING;
+terminal Integer	VALUE;
+
+nonterminal 			scene;
+nonterminal Node		directive;
+nonterminal Node		instruction, expression, shape, bloc;
+nonterminal Node		containing, with_params, with_animations;
+
+terminal			LOOP, BEGIN, END;
+terminal			SHAPE, CONTAINING, WITH, ANIMATE;
+
+nonterminal Node		contain;
+nonterminal Node		animation;
+nonterminal	Node		parameter, tupple;
+nonterminal String		name;
+
+precedence nonassoc QUESTION;
+precedence left OR;
+precedence left PLUS, MINUS; 
+precedence left MULT, DIV, MOD; 
+precedence right UNARY_MINUS;
+
+scene		::=	directive*:list					{: parser.setScene (new Node (NodeType.CONTAINER, list)); :}
+			;
+
+directive	::= instruction:i					{: RESULT = i; :}
+			|	shape:s							{: RESULT = s; :}
+			|	bloc:b							{: RESULT = b; :}
+			;
+
+bloc		::=	BEGIN directive*:list END		{: RESULT = new Node (NodeType.CONTAINER, list); :}
+			;
+			
+instruction	::=	LOOP expression:e bloc:b		{: RESULT = new Node (NodeType.INSTR_LOOP, e, b); :}
+			|	NAME:n EQUAL expression:e		{: RESULT = new Node (NodeType.VAR_SET, n, e); :}
+			|	NAME:n EQUAL shape:s			{: RESULT = new Node (NodeType.VAR_SET, n, s); :}
+			;
+				
+expression	::=	VALUE:v							{: RESULT = new Node (NodeType.VALUE_DOUBLE, v); :}
+			|	STRING:n						{: RESULT = new Node (NodeType.VALUE_STRING, n); :}
+			|	NAME:n							{: RESULT = new Node (NodeType.VAR_GET, n); :}
+			|	OPEN_ROUND expression:e CLOSE_ROUND	{: RESULT = e; :}
+			|	expression:l OR expression:r	{: RESULT = new Node (NodeType.EXPR_OR, l, r); :}
+			|	expression:l PLUS expression:r	{: RESULT = new Node (NodeType.EXPR_PLUS, l, r); :}
+			|	expression:l MINUS expression:r	{: RESULT = new Node (NodeType.EXPR_MINUS, l, r); :}
+			|	expression:l MULT expression:r	{: RESULT = new Node (NodeType.EXPR_MULTIPLY, l, r); :}
+			|	expression:l DIV expression:r	{: RESULT = new Node (NodeType.EXPR_DIVIDE, l, r); :}
+			|	expression:l MOD expression:r	{: RESULT = new Node (NodeType.EXPR_MODULO, l, r); :}
+			|	expression:q QUESTION expression:t COLON expression:f {: RESULT = new Node (NodeType.EXPR_TERNARY, q, t, f); :}
+			|	MINUS expression:r				{: RESULT = new Node (NodeType.EXPR_UMINUS, r); :} %prec UNARY_MINUS
+			;
+
+shape		::=	SHAPE NAME:ref
+						containing?:l
+						with_params:ps
+						with_animations:as
+					{:
+						RESULT = new Node (NodeType.SHAPE, ref, l, ps, as);
+					:}
+			;
+
+containing	::=	CONTAINING contain*:list DOT		{: RESULT = new Node (NodeType.CONTAINER, list); :}
+			;
+
+contain		::=	shape:s							{: RESULT = s; :}
+			;
+
+with_params	::=									{: RESULT = null; :}
+			|	WITH parameter*:list DOT		{: RESULT = new Node (NodeType.CONTAINER, list); :}
+			;
+			
+name		::= NAME:n							{: RESULT = n; :}
+			|	BEGIN							{: RESULT = "begin"; :}
+			|	END								{: RESULT = "end"; :}
+			;
+
+parameter	::=	name:n COLON tupple:t			{: RESULT = new Node (NodeType.PARAMETER, n, t); :}
+			|	STRING:n						{: RESULT = new Node (NodeType.PARAMETER, n); :}
+			;
+
+tupple		::=	expression:v ( COMMA expression:v )*:list
+												{:
+													RESULT = new Node (NodeType.CONTAINER);
+													RESULT.addNode(v);
+													RESULT.addNodes(list);
+												:}
+			;
+
+with_animations	::=								{: RESULT = null; :}
+			|	ANIMATE animation*:list DOT		{: RESULT = new Node (NodeType.CONTAINER, list); :}
+			;
+			
+animation	::=	NAME:n parameter*:list DOT		{: RESULT = new Node (NodeType.ANIMATION, n, new Node (NodeType.CONTAINER, list)); :}
+			;

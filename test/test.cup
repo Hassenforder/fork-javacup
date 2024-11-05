@@ -1,0 +1,43 @@
+package test;
+
+import fr.uha.hassenforder.animation2SVG.model.Node;
+import fr.uha.hassenforder.animation2SVG.model.NodeType;
+
+parser code {:
+  
+    public void report_error(String message, Object info) {
+        StringBuffer m = new StringBuffer("Error");
+		m.append (info.toString());
+        m.append(" : "+message);
+        System.err.println(m.toString());
+    }
+   
+    public void report_fatal_error(String message, Object info) {
+        report_error(message, info);
+        System.exit(1);
+    }
+
+	private Node scene;
+	
+	
+	public Node getScene () {
+		return scene;
+	}	
+
+	public void setScene (Node node) {
+		scene = node;
+	}	
+:}
+
+terminal			EQUAL;
+
+terminal Integer	VALUE;
+
+nonterminal 			scene;
+nonterminal Node		directive;
+
+scene		::=	directive*:list					{: parser.setScene (new Node (NodeType.CONTAINER, list)); :}
+			;
+
+directive	::= VALUE:v							{: RESULT = new Node (NodeType.VALUE_DOUBLE, v); :}
+			;
